@@ -6,7 +6,7 @@
 /*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/12 14:48:10 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/13 09:25:47 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,11 @@ void error_handler(int err)
         std::cerr << "ERROR:\t Sending Failed" << std::endl;
     else if (err == 3)
         std::cerr << "ERROR:\t Listening failed" << std::endl;
-        
+    else if (err == 4)
+        std::cerr << "ERROR:\t Accepting failed" << std::endl;
+    else if (err == 5)
+        std::cerr << "ERROR:\t Reading failed" << std::endl;
+    else if (err == 6)
+        std::cerr << "ERROR:\t Writing failed" << std::endl;
     exit(1);
 }
