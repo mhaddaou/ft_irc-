@@ -36,3 +36,5 @@ It is used when creating socket ,binding socket, accept socket and connect socke
 The first set, `readfds`, contains file descriptors to be checked for readability<br>
 The second set, `writefds`, contains file descriptors to be checked for writability<br>
 The third set, `exceptfds`, contains file descriptors to be checked for exceptions<br>
+
+`FD_SETSIZE`: The maximum number of file descriptors that can be stored in the `readfds` set. This is defined by the operating system and is usually a large value such as `1024` or `2048`.
