@@ -6,7 +6,7 @@
 /*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/13 09:37:41 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/14 17:55:35 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,47 +14,54 @@
 #include "../includes/server.hpp"
 // #include <typeinfo>
 
-int main (int ac, char **av)
-{
-    if (ac < 3)
-        error_handler(0);    
+#include <typeinfo>
+int main (int ac , char **av){
+    
+    if (ac < 3){
+        std::cerr << "error in the argument" << std::endl; return 1;
+    }
     else{
-        Server server;
-        server.sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (server.sockfd < 0)
-            error_handler(1);
-        memset((void *)&server.ser_add, 0, sizeof(server.ser_add));
-        server.port = atoi(av[1]);
-        server.password = av[2];
-        server.ser_add.sin_family = AF_INET;
-        server.ser_add.sin_addr.s_addr = INADDR_ANY;
-        server.ser_add.sin_port = htons(server.port);
-        
-        if (bind(server.sockfd, ((struct sockaddr *) &server.ser_add), sizeof(server.ser_add)) < 0)
-            error_handler(2);
-            
-        if (listen(server.sockfd, 100))
-            error_handler(3);
-        server.clilen = sizeof(server.cli_add);
-        server.newsockfd = accept(server.sockfd, (struct sockaddr *)&server.cli_add, &server.clilen);
-        if (server.newsockfd < 0)
-            error_handler(4);
-        while (true){
-            memset((void*)server.buffer, 0, 255);
-            server.n = read(server.newsockfd, server.buffer, 255);
-            if (server.n < 0)
-                error_handler(5);
-            std::cout << "Client: " << server.buffer << std::endl;
-            memset((void*)server.buffer, 0, 255);
-            std::fgets(server.buffer, 255, stdin);
-            server.n = write(server.newsockfd, server.buffer ,sizeof(server.buffer) );
-            if (server.n < 0)
-                error_handler(6);
-            if (std::strcmp("Bye", server.buffer) == 0)
-                break;            
+        // std::cout << typeid(av[1]).name() << std::endl;
+        Server server(av[1], av[2]);
+         server.serverfd = socket(AF_INET, SOCK_STREAM, 0);
+            if (server.serverfd < 0) {
+            std::cerr << "Error creating socket" << std::endl;
+        return 1;
+    }
+        server.setaddrinfo();
+        if (server._bind() == EXIT_FAILURE){
+            return (EXIT_FAILURE);
         }
-        close(server.newsockfd);
-        close(server.sockfd);
-        return (0);
+        if (server._listen() == EXIT_FAILURE){
+            return (EXIT_FAILURE);
+        }
+        // server.listOfSockets();
+        server.setTime();
+        while (true){
+            // clear the file descriptor set
+            FD_ZERO(&server.readfds);
+            //add the socket and connected clients to the file descriptor set
+            FD_SET(server.serverfd, &server.readfds);
+            for(int i=0; i < server.clients.size(); i++){
+                FD_SET(server.clients[i], &server.readfds);
+            }
+            //wait for activity on any file descriptor
+            if (server._select() == EXIT_FAILURE)
+                return (EXIT_FAILURE);
+            // check if there is a new incoming connection
+            // and add new client to connected clients vector
+            if (FD_ISSET(server.serverfd, &server.readfds)){
+                if (server._accept() == EXIT_FAILURE)
+                    continue;
+            }
+            //check if any connected clients have sent data
+            // for (int i = 0; i < server.clients.size(); i++){
+            //     if (FD_ISSET(server.serverfd, &server.readfds)){
+                    
+            //     }
+                
+            // }
+        }
+        
     }
 }
