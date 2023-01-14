@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/13 09:13:39 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/14 03:09:05 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@
 # include <netinet/in.h>
 # include <fstream>
 # include <unistd.h>
+# include <signal.h>
+# include <vector>
+
+extern int n_MaxFd; 
 
 class Server{
     public:
@@ -44,6 +48,9 @@ class Server{
         };
         
 };
+
 /// @brief 
-/// @param err 
+/// @param err error code
 void error_handler(int err);
+
+extern std::vector<Server> servers;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/13 09:25:47 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/13 16:06:20 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,10 @@
 
 Server::Server(){}
 
-Server::~Server(){}
+Server::~Server(){
+        close(newsockfd);
+        close(sockfd);
+}
 
 const char* Server::WrongArgument::what() const throw(){
     return ("ERROR : invalid arguments");
