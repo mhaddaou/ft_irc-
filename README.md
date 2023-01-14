@@ -30,4 +30,9 @@ Here is a list of the most commonly used members of the hostent struct:<br>
 `sin_zero:` padding to make the structure the same size as struct sockaddr<br>
 It is used when creating socket ,binding socket, accept socket and connect socket<br>
 
-`socklen_t` is a data type defined in the <sys/socket.h> header file in C. It is used to specify the size of a socket address structure, such as `struct sockaddr_in`. The `socklen_t` type is used as the third argument in many socket functions, such as `bind()`, `connect()`, `accept()`, and `getsockname()`, to specify the size of the socket address structure passed as an argument.
+`socklen_t` is a data type defined in the <sys/socket.h> header file in C. It is used to specify the size of a socket address structure, such as `struct sockaddr_in`. The `socklen_t` type is used as the third argument in many socket functions, such as `bind()`, `connect()`, `accept()`, and `getsockname()`, to specify the size of the socket address structure passed as an argument.<br>
+`select()` function is a system call that allows a program to monitor multiple file descriptors, waiting until one or more of the file descriptors become "ready" for a specific type of I/O operation (e.g. reading, writing). The function takes three sets of file descriptors as arguments:<br>
+
+The first set, `readfds`, contains file descriptors to be checked for readability<br>
+The second set, `writefds`, contains file descriptors to be checked for writability<br>
+The third set, `exceptfds`, contains file descriptors to be checked for exceptions<br>
