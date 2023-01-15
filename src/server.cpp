@@ -6,7 +6,7 @@
 /*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/14 20:00:37 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/14 21:43:26 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Server::Server(char * port, char * passwd){
 
 void Server::setaddrinfo(){
     
-    // memset(&this->server_address, 0, sizeof(this->server_address));
+    memset(&this->server_address, 0, sizeof(this->server_address));
     this->server_address.sin_family = AF_INET;
     this->server_address.sin_addr.s_addr = INADDR_ANY;
     this->server_address.sin_port = htons(this->_port);

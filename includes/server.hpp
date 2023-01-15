@@ -6,7 +6,7 @@
 /*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/14 20:00:09 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/14 21:23:34 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,10 @@ class Server{
         std::vector<int> clients;
         int serverfd;
         struct sockaddr_in server_address;
+        struct sockaddr_in client_address;
         fd_set sockets_list;
         fd_set readfds;
         int client_socket;
-        struct sockaddr_in client_address;
         char buffer[BUF_SIZE];
         void setaddrinfo();
         void check_error(std::string err);
