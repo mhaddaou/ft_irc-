@@ -6,7 +6,7 @@
 /*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 22:09:01 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/14 22:18:35 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/15 10:59:40 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,9 +132,7 @@ void handle_clients(int sockfd) {
 }
 
 
-// Here, a new function handle_client_activity() is introduced to handle the activity of a specific client. This function is called for each client that has activity, and it calls the appropriate helper function depending on the value of bytes_received.
-// This way the main function will be more readable and easy to follow.
-// Please let me know if you need any more help.
+
 
 
 int main() {
