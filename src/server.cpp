@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/14 21:43:26 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/15 18:54:50 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int Server::_socket(){
     return (EXIT_SUCCESS);
 }
 int Server::_bind(){
-    if (bind(this->serverfd, (struct sockaddr *)&this->server_address, sizeof(this->server_address)) < 0){
+    if (bind(this->serverfd, (struct sockaddr *)&(this->server_address), sizeof(this->server_address)) < 0){
         std::cerr << "bind failed" << std::endl;
         return (EXIT_FAILURE);
     }
@@ -62,7 +62,6 @@ int Server::_select(){
     return (EXIT_SUCCESS);
 }
 std::vector<std::string> Server::splitCMD(std::string msg){
-    
     std::vector<std::string> cmd;
     std::stringstream ss(msg);
     std::string word;
@@ -94,4 +93,45 @@ int Server::_accept(){
     this->clients.push_back(newfd);
     std::cout << "new client connected" << std::endl;
     return (EXIT_SUCCESS);
+}
+
+string Server::setNickname(int fd){
+    char buffer[1024];
+    memset(buffer, 0, 1024);
+    send(fd,"enter nickname :", sizeof("enter nickname :"), 0);
+    while (true)
+    {
+        int byte = recv(fd, buffer, BUF_SIZE, 0);
+        if (byte > 0){
+            vector<string> cmd = this->splitCMD(buffer);
+            if (cmd[0] == "NICK" && !cmd[1].empty()){
+                return cmd[1];
+            }
+            else{
+                send(fd,"command nickname is wrong\n", sizeof("nickname is wrong\n"), 0);
+                send(fd,"enter nickname :", sizeof("enter nickname :"), 0);
+
+            }
+        }
+    }
+}
+
+string Server::setName(int fd){
+    char buffer[1024];
+    memset(buffer, 0, 1024);
+    send(fd,"enter Name :", sizeof("enter Name :"), 0);
+    while (true)
+    {
+        int byte = recv(fd, buffer, BUF_SIZE, 0);
+        if (byte > 0){
+            vector<string> cmd = this->splitCMD(buffer);
+            if (cmd[0] == "NAME" && !cmd[1].empty()){
+                return cmd[1];
+            }
+            else{
+                send(fd,"command Name is wrong\n", sizeof("nickname is wrong\n"), 0);
+                send(fd,"enter nickname :", sizeof("enter nickname :"), 0);
+            }
+        }
+    }
 }

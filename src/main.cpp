@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/15 10:32:35 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/15 19:10:03 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,24 +16,21 @@
 
 #include <typeinfo>
 
-const int MAX_CLIENTS = 10;
+// const int MAX_CLIENTS = 10;
 // const int BUF_SIZE = 1024;
 
 int main(int ac, char **av) {
     
     if (ac < 3)
-        std::cerr << "invalid arguments" << std::endl;
+        cerr << "invalid arguments" << endl;
     else{
-        
-    
-        
         Server server(av[1], av[2]);
         // Create socket
         server._socket();
         // Set server address information
         server.setaddrinfo();
        
-
+        
         // Bind socket to address and port
         // Start listening for incoming connections
         if (server._bind() == EXIT_FAILURE || server._listen() == EXIT_FAILURE)
@@ -61,15 +58,14 @@ int main(int ac, char **av) {
             if (FD_ISSET(server.serverfd, &server.readfds)) {
                 int clientfd = accept(server.serverfd, NULL, NULL);
                 if (clientfd < 0) {
-                    std::cerr << "Error accepting connection" << std::endl;
+                    cerr << "Error accepting connection" << endl;
                     continue;
                 }
-                // send(clientfd,"name :", 6, 0);
-                // Add new client to connected server.clients vector
-                server.clients.push_back(clientfd);
-                std::cout << "New client connected" << std::endl;
-            }
 
+                server.clients.push_back(clientfd);
+                cout << "New client connected" << endl;
+            }
+            
             // Check if any connected server.clients have sent data
             for ( unsigned int i = 0; i < server.clients.size(); i++) {
                 if (FD_ISSET(server.clients[i], &server.readfds)) {
@@ -77,9 +73,15 @@ int main(int ac, char **av) {
                     if (bytes_received <= 0) {
                         close(server.clients[i]);
                         server.clients.erase(server.clients.begin() + i);
-                        std::cout << "Client disconnected" << std::endl;
+                        cout << "Client disconnected" << endl;
                     } else {
-                        std::cout << "Received message: " << server.buffer << std::endl;
+                        // authenntification
+                        // Client tmp;
+                        // tmp.setNickName(server.setNickname(clientfd));
+                        // tmp.setName(server.setName(clientfd));
+                        // Add new client to connected server.clients vector
+                        // server.infoClients.insert(make_pair(clientfd, tmp));
+                        cout << "Received message: " << server.buffer << endl;
                         memset(server.buffer, 0,  BUF_SIZE);
                         // Add code here to handle the received message and send it to other server.clients as necessary
                         // for (int j = 0; j < server.clients.size(); j++) {

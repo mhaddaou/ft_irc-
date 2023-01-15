@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+         #
+#    By: smia <smia@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 11:22:07 by mhaddaou          #+#    #+#              #
-#    Updated: 2023/01/14 19:06:25 by mhaddaou         ###   ########.fr        #
+#    Updated: 2023/01/15 18:25:39 by smia             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ircserv
 FLAGS = -Wall -Wextra -Werror -std=c++98
-SRC = src/main.cpp src/server.cpp
+SRC = src/main.cpp src/server.cpp src/client.cpp
 CC = c++
 HEADER = includes/server.hpp includes/client.hpp
 RM = rm -rf

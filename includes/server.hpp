@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/14 21:23:34 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/15 18:45:06 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,18 @@
 # include <vector>
 # include <sstream>
 # include "../includes/client.hpp"
+#include <map>
+#include <algorithm>
 # define MAX_CLIENT (10)
 # define BUF_SIZE (1024)
-
+using namespace std;
 class Server{
     private:
         int _port;
-        std::string _passwd;
+        string _passwd;
     public:
-        Client infoClients[MAX_CLIENT];
         Server(char * port, char * passwd);
-        std::vector<int> clients;
+        vector<int> clients;
         int serverfd;
         struct sockaddr_in server_address;
         struct sockaddr_in client_address;
@@ -52,8 +53,13 @@ class Server{
         int _select();
         int _accept();
         void listOfSockets();
-        std::vector<std::string> splitCMD(std::string msg);
+        vector<string> splitCMD(string msg);
         struct timeval timeout;
         void setTime();
+        /// @brief 
+        map<int, Client> infoClients;
+        string setNickname(int fd);
+        string setName(int fd);
+    
         
 };
