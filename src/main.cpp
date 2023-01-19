@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/19 01:42:21 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/19 21:47:58 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,53 +67,41 @@ int main(int ac, char **av) {
             }
 
             // Check if any connected server.clients have sent data
-            for (iterator it = server.map_clients.begin(); it != server.map_clients.end(); ++it) 
+            for (iterator it = server.map_clients.begin(); it != server.map_clients.end();) 
             {
                 if (FD_ISSET(it->first, &server.readfds)) 
                 {
                     memset(it->second.buffer, 0, BUF_SIZE);
                     int x = recv(it->first, it->second.buffer, BUF_SIZE, 0);
-                    if (x <= 0)
+                    if (server.checkQuit(it->second.buffer) == EXIT_SUCCESS)
+                        x = 0;
+                    if (x == 0)
                     {
                         std::cout << it->second.getName() <<" disconnected" << std::endl;
                         x = it->first;
-                        ++it;
                         close(x);
+                        ++it;
                         server.map_clients.erase(x);
-                    } 
-                    else 
+                    }
+                    else if (x < 0)
+                        std::cout << "error to read " << std::endl;
+                    else
                     {
                         if (it->second.verified == false)
                             connect(&server, it->second.buffer, it->first);
                         else
                         {
-                            // std::cout << it->second.buffer << std::endl;
-                            // if (server.isCmd(it->second.buffer))
-                            // {
-                            //     // execute commande
-                            // }
-                            // else
-                            // {
-                                
-                            // }
+                            // handle other cmd
+                            handleCmd(&server, it->second.buffer, it->first);
                         }
-                            // for (iterator it1; it1 != server.map_clients.end(); it1++) {
-                            //     if (it1 != it) {
-                            //         send(it1->first, it1->second.buffer, x, 0);
-                            //     }
-                        // std::cout << it->second.buffer << std::endl;
-                        // send(it->first,":localhost CAP * LS :multi-prefix sasl", sizeof(":localhost CAP * LS :multi-prefix sasl"), 0);  
-                        // std::cout << "--" << it->second.buffer<< "--" << std::endl;
-                        // if (strcmp(it->second.buffer,syn_ack) == 0)
-                        //     send (it->first, syn_ack, sizeof(syn_ack), 0);
-
-                        // Add code here to handle the received message and send it to other server.clients as necessary
-
-                        }
+                        ++it;
                     }
                 }
+                else
+                    ++it;
             }
         }
-    return 0;
     }
+    return 0;
+}
 

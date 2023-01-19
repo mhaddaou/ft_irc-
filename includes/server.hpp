@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/17 18:53:00 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/19 21:42:21 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,10 @@ class Server{
         int _bind();
         int getPort();
         std::string getPass(void) const {return _passwd;}
-
+        std::string encrypt(std::string passwd);
+        std::string decrypt(std::string passwd);
         int _listen();
+        int checkQuit(std::string buffer);
         int _select();
         int _accept();
         void listOfSockets();
@@ -65,6 +67,8 @@ void connect(Server *server, char *buffer, int fd);
 void nick(Server *server, std::vector<std::string> cmd, int fd);
 void user(Server *server, std::vector<std::string> cmd, int fd);
 void passwd(Server *server, std::vector<std::string> cmd, int fd);
+void handleCmd(Server *server, char *buffer, int fd);
+void setPrvMsg(std::vector<std::string> cmd, int fd);
 // bool isCmd(char *s)
 // {
 
