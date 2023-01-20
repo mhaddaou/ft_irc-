@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 20:20:41 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/20 22:10:08 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,11 +70,11 @@ int main(int ac, char **av) {
             // Check if any connected server.clients have sent data
             for (size_t i = 0; i < server.fds.size(); ++i) 
             {
-                if (FD_ISSET(server.fds[i], &server.readfds)) 
+                if (FD_ISSET(server.fds[i], &server.readfds))
                 {
-                    memset(server.buffer, 0, BUF_SIZE);
-                    int recev_bytes = recv(server.fds[i], server.buffer, BUF_SIZE, 0);
-                    if (server.checkQuit(server.buffer) == EXIT_SUCCESS)
+                    memset(server.map_clients[server.fds[i]].buffer, 0, BUF_SIZE);
+                    int recev_bytes = recv(server.fds[i], server.map_clients[server.fds[i]].buffer, BUF_SIZE, 0);
+                    if (server.map_clients[server.fds[i]].verif &&server.checkQuit(server.map_clients[server.fds[i]].buffer) == EXIT_SUCCESS)
                         recev_bytes = 0;
                     if (recev_bytes == 0)
                     {
