@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 01:46:28 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/20 20:16:50 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,6 +189,7 @@ void handleCmd(Server *server, char *buffer, int fd)
         // remove the user for map here
         return;   
     }
+    (void)fd;
     if (cmd[0] == "PRIVMSG")
         setPrvMsg(server, cmd);
 }

@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 01:12:41 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/20 20:16:35 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include <string.h>
 #include <iostream>
-#include <channel.hpp>
+#include "channel.hpp"
 #include <vector>
 
 class Client{

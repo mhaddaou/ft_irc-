@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/19 21:47:58 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/20 20:20:41 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,9 @@ int main(int ac, char **av) {
             FD_ZERO(&server.readfds);
             // Add the socket and connected server.clients to the file descriptor set
             FD_SET(server.serverfd, &server.readfds);
-            for (iterator it = server.map_clients.begin(); it != server.map_clients.end(); ++it)
+            for (size_t i = 0; i < server.fds.size(); ++i)
             {
-                FD_SET(it->first, &server.readfds);
+                FD_SET(server.fds[i], &server.readfds);
             }
             // Set up timeout for select()
             server.setTime();
@@ -63,42 +63,39 @@ int main(int ac, char **av) {
                     continue;
                 }
                 // Add new client to connected server.clients map
+                server.fds.push_back(clientfd);
                 server.map_clients[clientfd];
             }
 
             // Check if any connected server.clients have sent data
-            for (iterator it = server.map_clients.begin(); it != server.map_clients.end();) 
+            for (size_t i = 0; i < server.fds.size(); ++i) 
             {
-                if (FD_ISSET(it->first, &server.readfds)) 
+                if (FD_ISSET(server.fds[i], &server.readfds)) 
                 {
-                    memset(it->second.buffer, 0, BUF_SIZE);
-                    int x = recv(it->first, it->second.buffer, BUF_SIZE, 0);
-                    if (server.checkQuit(it->second.buffer) == EXIT_SUCCESS)
-                        x = 0;
-                    if (x == 0)
+                    memset(server.buffer, 0, BUF_SIZE);
+                    int recev_bytes = recv(server.fds[i], server.buffer, BUF_SIZE, 0);
+                    if (server.checkQuit(server.buffer) == EXIT_SUCCESS)
+                        recev_bytes = 0;
+                    if (recev_bytes == 0)
                     {
-                        std::cout << it->second.getName() <<" disconnected" << std::endl;
-                        x = it->first;
-                        close(x);
-                        ++it;
-                        server.map_clients.erase(x);
+                        std::cout  <<" disconnected" << std::endl;
+                        close(server.fds[i]);
+                        server.fds.erase(server.fds.begin() + i);
+                        server.map_clients.erase(server.fds[i]);
                     }
-                    else if (x < 0)
+                    else if (recev_bytes < 0)
                         std::cout << "error to read " << std::endl;
                     else
                     {
-                        if (it->second.verified == false)
-                            connect(&server, it->second.buffer, it->first);
+                        if (server.map_clients[server.fds[i]].verified == false)
+                            connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
                         else
                         {
                             // handle other cmd
-                            handleCmd(&server, it->second.buffer, it->first);
+                            handleCmd(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
                         }
-                        ++it;
                     }
                 }
-                else
-                    ++it;
             }
         }
     }

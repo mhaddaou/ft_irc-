@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/19 21:42:21 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/20 19:39:57 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Server{
         struct timeval timeout;
         void setTime();
         std::map<int, Client> map_clients;
+        std::vector<int> fds;
 };
 void connect(Server *server, char *buffer, int fd);
 void nick(Server *server, std::vector<std::string> cmd, int fd);
