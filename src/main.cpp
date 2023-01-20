@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 22:10:08 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/20 22:13:43 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ int main(int ac, char **av) {
                 {
                     memset(server.map_clients[server.fds[i]].buffer, 0, BUF_SIZE);
                     int recev_bytes = recv(server.fds[i], server.map_clients[server.fds[i]].buffer, BUF_SIZE, 0);
-                    if (server.map_clients[server.fds[i]].verif &&server.checkQuit(server.map_clients[server.fds[i]].buffer) == EXIT_SUCCESS)
+                    if (server.map_clients[server.fds[i]].verified && server.checkQuit(server.map_clients[server.fds[i]].buffer) == EXIT_SUCCESS)
                         recev_bytes = 0;
                     if (recev_bytes == 0)
                     {
