@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/19 15:16:00 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/20 01:12:41 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 
 #include <string.h>
 #include <iostream>
-
+#include <channel.hpp>
+#include <vector>
 
 class Client{
     private:
@@ -29,6 +30,19 @@ class Client{
         int verif;
         // int fd;
         int id;
+        Client& operator=(Client const &cp)
+        {
+            _nickname = cp.getNickName();
+            _name = cp.getName();
+            _password = cp.getPassword();
+            verified = cp.verified;
+            verif = cp.verif;
+            return (*this);
+        }
+        Client(Client const &cp)
+        {
+            *this = cp;   
+        }
         Client();
         ~Client() {}
         // char buffer[1024];
@@ -52,18 +66,6 @@ class Client{
             }
             return false;
         }
-        Client& operator=(Client const &cp)
-        {
-            _nickname = cp.getNickName();
-            _name = cp.getName();
-            _password = cp.getPassword();
-            verified = cp.verified;
-            verif = cp.verif;
-            return (*this);
-        }
-        Client(Client const &cp)
-        {
-            *this = cp;   
-        }
+        std::vector<Channel>  channels;
         
 };

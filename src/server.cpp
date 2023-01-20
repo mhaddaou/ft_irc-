@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/19 21:54:44 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/20 01:46:28 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,22 +175,20 @@ int Server::checkQuit(std::string str){
             return (EXIT_SUCCESS);
     return (EXIT_FAILURE);
 }
-void handleCmd(Server *server, char *buffer, int fd){
+void handleCmd(Server *server, char *buffer, int fd)
+{
     std::cout << buffer << "l" << std::endl;
     std::string hel = buffer;
     std::cout << hel.size() << std::endl;
     // std::cout << buffer << std::endl;
     std::vector<std::string> cmd = server->splitCMD(buffer);
     std::cout << cmd.size() << std::endl;
-    if (cmd[0] == "QUIT")
-        if (cmd[1] == ":\r\n")
-            if (cmd.size() == 2){
-                std::cout << "ah" << std::endl;
-                return;
-            }  // remove the user for map here
-            
+    if (cmd[0] == "QUIT" && cmd[1] == ":\r\n" && cmd.size() == 2)
+    {
+        // server->map_clients.erase(fd);
+        // remove the user for map here
+        return;   
+    }
     if (cmd[0] == "PRIVMSG")
         setPrvMsg(server, cmd);
-    (void)fd;
-    
 }
