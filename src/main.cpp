@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 22:13:43 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/20 22:30:45 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,13 +82,17 @@ int main(int ac, char **av) {
                         close(server.fds[i]);
                         server.fds.erase(server.fds.begin() + i);
                         server.map_clients.erase(server.fds[i]);
+                        --i;
                     }
                     else if (recev_bytes < 0)
                         std::cout << "error to read " << std::endl;
                     else
                     {
                         if (server.map_clients[server.fds[i]].verified == false)
+                        {
+                            std::cout << "heh" <<std::endl;
                             connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
+                        }
                         else
                         {
                             // handle other cmd

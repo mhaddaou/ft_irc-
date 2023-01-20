@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 20:16:50 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/20 22:29:10 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ void nick(Server *server,std::vector<std::string> cmd, int fd){
 }
 
 void user(Server *server, std::vector<std::string> cmd, int fd){
+    std::cout << cmd[1];
     if (cmd[0] == "USER"){
         for (size_t i = 0; i < cmd.size(); i++){
             std::cout << cmd[i];
