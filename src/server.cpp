@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/21 00:57:20 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/21 15:22:22 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,8 @@ void user(Server *server, std::vector<std::string> cmd, int fd){
 }
 
 void passwd(Server *server, std::vector<std::string> cmd,  int fd)
-{    
+{
+    // std::string g = "GUEST";
     
     if (cmd[0] == "PASS")
     {
@@ -121,6 +122,10 @@ void passwd(Server *server, std::vector<std::string> cmd,  int fd)
 
                 server->map_clients[fd].setPassword(server->encrypt(cmd[1]));
                 server->map_clients[fd].incrementVerf();
+            }
+            else{
+                std::string rpl = ":localhost 464 . : Password incorrect\r\n";
+                send(fd, rpl.c_str(), rpl.size(), 0);
             }
             
         }
@@ -152,7 +157,7 @@ void connect (Server *server,char *buffer, int fd)
     else if (server->map_clients[fd].verif == 2)
         user(server, cmd, fd);
     if (server->map_clients[fd].is_verified()){
-        std::string rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server\r\n";
+        std::string rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server \r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
         std::cout << server->map_clients[fd].getNickName()<< " "<< fd << "  is connected!" << std::endl;
     }     

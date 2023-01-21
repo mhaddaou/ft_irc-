@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/21 00:22:53 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/21 15:23:17 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ int main(int ac, char **av) {
                 {
                     memset(server.map_clients[server.fds[i]].buffer, 0, BUF_SIZE);
                     int recev_bytes = recv(server.fds[i], server.map_clients[server.fds[i]].buffer, BUF_SIZE, 0);
-                    if (server.map_clients[server.fds[i]].verified && server.checkQuit(server.map_clients[server.fds[i]].buffer) == EXIT_SUCCESS)
+                    if (server.map_clients[server.fds[i]].verified && recev_bytes && server.checkQuit(server.map_clients[server.fds[i]].buffer) == EXIT_SUCCESS)
                         recev_bytes = 0;
                     if (recev_bytes == 0)
                     {
