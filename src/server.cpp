@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 22:29:10 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/21 00:57:20 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,12 +176,44 @@ int Server::checkQuit(std::string str){
             return (EXIT_SUCCESS);
     return (EXIT_FAILURE);
 }
+
+void joinChannel(Server* server, std::vector<std::string> cmd)
+{
+    static int id = -1;
+    
+    int idChannel = -1;
+    for (size_t i = 0; i < server->channels.size(); ++i)
+    {
+        if (server->channels[i]._name == cmd[1])
+        {
+            idChannel = server->channels[i]._id;
+        }
+    }
+    if (idChannel == -1)
+    {
+        ++id;
+        Channel ch(cmd[1], id);
+        server->channels.push_back(ch);
+    }
+    else
+    {
+        for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
+        {
+            for (size_t i = 0; i < it->second.channels.size(); ++i)
+            {
+                if (idChannel == it->second.channels[i]._id)
+                {
+                    // send msg to client it;
+                }
+            }
+        }
+    }
+}
+
 void handleCmd(Server *server, char *buffer, int fd)
 {
-    std::cout << buffer << "l" << std::endl;
+    std::cout << buffer << std::endl;
     std::string hel = buffer;
-    std::cout << hel.size() << std::endl;
-    // std::cout << buffer << std::endl;
     std::vector<std::string> cmd = server->splitCMD(buffer);
     std::cout << cmd.size() << std::endl;
     if (cmd[0] == "QUIT" && cmd[1] == ":\r\n" && cmd.size() == 2)
@@ -193,4 +225,8 @@ void handleCmd(Server *server, char *buffer, int fd)
     (void)fd;
     if (cmd[0] == "PRIVMSG")
         setPrvMsg(server, cmd);
+    if (cmd[0] == "JOIN")
+        joinChannel(server, cmd);
+        
+
 }

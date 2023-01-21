@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 20:16:35 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/21 01:40:22 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ class Client{
         }
         Client();
         ~Client() {}
-        // char buffer[1024];
         void setName(std::string);
         void setChannel(std::string);
         void setPassword(std::string);
@@ -67,5 +66,4 @@ class Client{
             return false;
         }
         std::vector<Channel>  channels;
-        
 };

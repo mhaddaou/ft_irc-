@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 22:30:45 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/21 00:22:53 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,12 +90,12 @@ int main(int ac, char **av) {
                     {
                         if (server.map_clients[server.fds[i]].verified == false)
                         {
-                            std::cout << "heh" <<std::endl;
                             connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
                         }
                         else
                         {
                             // handle other cmd
+                            
                             handleCmd(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
                         }
                     }
