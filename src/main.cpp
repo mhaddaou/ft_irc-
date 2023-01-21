@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/21 15:23:17 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/21 19:27:00 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,21 +68,23 @@ int main(int ac, char **av) {
             }
 
             // Check if any connected server.clients have sent data
-            for (size_t i = 0; i < server.fds.size(); ++i) 
+            for (size_t i = 0; i < server.fds.size(); ++i ) 
             {
+                    
                 if (FD_ISSET(server.fds[i], &server.readfds))
                 {
                     memset(server.map_clients[server.fds[i]].buffer, 0, BUF_SIZE);
                     int recev_bytes = recv(server.fds[i], server.map_clients[server.fds[i]].buffer, BUF_SIZE, 0);
-                    if (server.map_clients[server.fds[i]].verified && recev_bytes && server.checkQuit(server.map_clients[server.fds[i]].buffer) == EXIT_SUCCESS)
+                    if (recev_bytes && server.checkQuit(server.map_clients[server.fds[i]].buffer) == EXIT_SUCCESS)
                         recev_bytes = 0;
                     if (recev_bytes == 0)
                     {
-                        std::cout  <<" disconnected" << std::endl;
-                        close(server.fds[i]);
+                        if (server.map_clients[server.fds[i]].verified == false)
+                            desconectedClient(&server, server.fds[i], false);
+                        else
+                            desconectedClient(&server, server.fds[i], true);
                         server.fds.erase(server.fds.begin() + i);
-                        server.map_clients.erase(server.fds[i]);
-                        --i;
+                        i--;
                     }
                     else if (recev_bytes < 0)
                         std::cout << "error to read " << std::endl;
@@ -90,7 +92,8 @@ int main(int ac, char **av) {
                     {
                         if (server.map_clients[server.fds[i]].verified == false)
                         {
-                            connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
+                            if (connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i], i) == EXIT_FAILURE)
+                                break;
                         }
                         else
                         {

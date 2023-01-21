@@ -6,13 +6,13 @@
 #    By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 11:22:07 by mhaddaou          #+#    #+#              #
-#    Updated: 2023/01/19 17:33:16 by mhaddaou         ###   ########.fr        #
+#    Updated: 2023/01/21 15:38:10 by mhaddaou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ircserv
 FLAGS = -Wall -Wextra -Werror -std=c++98
-SRC = src/main.cpp src/server.cpp src/client.cpp
+SRC = src/main.cpp src/server.cpp src/client.cpp src/tools.cpp
 CC = c++
 HEADER = includes/server.hpp includes/client.hpp
 RM = rm -rf

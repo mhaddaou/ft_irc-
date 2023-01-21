@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/20 22:57:35 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/21 19:28:01 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,9 @@ class Server{
         int _port;
         std::string _passwd;
     public:
+        std::string name;
+        std::string nick;
+        std::string pass;
         Server(char * port, char * passwd);
         int serverfd;
         struct sockaddr_in server_address;
@@ -50,6 +53,7 @@ class Server{
         void setaddrinfo();
         void check_error(std::string err);
         int _socket();
+        int isClient(std::string str);
         int _bind();
         int getPort();
         std::string getPass(void) const {return _passwd;}
@@ -67,12 +71,13 @@ class Server{
         std::vector<int> fds;
         std::vector<Channel> channels;
 };
-void connect(Server *server, char *buffer, int fd);
-void nick(Server *server, std::vector<std::string> cmd, int fd);
+int connect(Server *server, char *buffer, int fd, int i);
+int nick(Server *server, std::vector<std::string> cmd, int fd, int i);
 void user(Server *server, std::vector<std::string> cmd, int fd);
-void passwd(Server *server, std::vector<std::string> cmd, int fd);
+int passwd(Server *server, std::vector<std::string> cmd, int fd, int i);
 void handleCmd(Server *server, char *buffer, int fd);
 void setPrvMsg(std::vector<std::string> cmd, int fd);
+void desconectedClient(Server *server, int fd, bool check);
 // bool isCmd(char *s)
 // {
 
