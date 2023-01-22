@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/22 13:25:18 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/22 19:23:04 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,7 @@ int Server::getPort(){
 }
 
 int nick(Server *server,std::vector<std::string> cmd, int fd, int i){
-    bool check = false;
     std::string rpl;
-    if (server->isClient(cmd[0]) == EXIT_SUCCESS)
-        check = true;
     if (cmd[0] == "NICK"){
         if (cmd.size() == 2)
             cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].cend());
@@ -95,12 +92,10 @@ int nick(Server *server,std::vector<std::string> cmd, int fd, int i){
             if (server->map_clients.size() > 0){
                 for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++){
                     if (it->second.getNickName() == cmd[1]){
-                        if (check == true)
-                            rpl = ":localhost 433 " + it->second.getNickName() + ": Nickname is already in use\r\n";
-                        else
-                            rpl = "Nickname is already in use";
+                        rpl = ":localhost 433 " + it->second.getNickName() + ": Nickname is already in use\r\n";
                         send(fd, rpl.c_str(), rpl.size(), 0);
                         desconectedClient(server, fd, false);
+                        server->map_clients.erase(server->fds[i]);
                         server->fds.erase(server->fds.begin() + i);
                         std::cout << "NICK IS USED" << std::endl;
                         return (EXIT_FAILURE);
@@ -109,24 +104,30 @@ int nick(Server *server,std::vector<std::string> cmd, int fd, int i){
             }
     server->map_clients[fd].setNickName(cmd[1]);
     std::cout << "NICK OK" << std::endl; 
+    server->map_clients[fd].incrementVerf();
     } 
+    
     return (EXIT_SUCCESS);
 }  
 
 int user(Server *server, std::vector<std::string> cmd, int fd, int i){
-    (void)i;
     if (cmd[0] == "USER"){
         if (cmd.size() == 5){
             server->map_clients[fd].setName(cmd[1]);
             server->map_clients[fd].setRealName(cmd[4]);
             server->map_clients[fd].is_verified = true;
+            server->map_clients[server->fds[i]].verified = true;
             std::cout << "USER OK" << std::endl;
+            server->map_clients[fd].incrementVerf();
             return (EXIT_SUCCESS);
         }
         else{
             std::cout << "USER ERROR" << std::endl;
             std::string rpl = ":localhost 461 . : Not enough parameters \r\n";
             send(fd, rpl.c_str(), rpl.size(), 0);
+            desconectedClient(server, fd, false);
+            server->map_clients.erase(server->fds[i]);
+            server->fds.erase(server->fds.begin() + i);  
         }
     }
     return (EXIT_FAILURE);
@@ -134,10 +135,7 @@ int user(Server *server, std::vector<std::string> cmd, int fd, int i){
 
 int passwd(Server *server, std::vector<std::string> cmd,  int fd, int i)
 {
-    int check = false;
     std::string rpl;
-    if (server->isClient(cmd[1]) == EXIT_SUCCESS)
-        check = true;
     if (cmd[0] == "PASS")
     {
         cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].cend());
@@ -148,18 +146,17 @@ int passwd(Server *server, std::vector<std::string> cmd,  int fd, int i)
             if (server->getPass() == server->encrypt(cmd[1]))
                 std::cout << "PASS OK" << std::endl;
             else{
-                if (check == true)
-                    rpl = ":localhost 464 . : Password incorrect\r\n";
-                else
-                    rpl = "Password incorrect\n";
+                rpl = ":localhost 464 . : Password incorrect\r\n";
                 send(fd, rpl.c_str(), rpl.size(), 0);
                 desconectedClient(server, fd, false);
+                server->map_clients.erase(server->fds[i]);
                 server->fds.erase(server->fds.begin() + i);
                 std::cout << "PASS INCORRECT" << std::endl;
                 return (EXIT_FAILURE);
             }
         }
     }
+    server->map_clients[fd].incrementVerf();
     return (EXIT_SUCCESS);
 }
 
@@ -181,30 +178,41 @@ std::string Server::decrypt(std::string password){
 int connect (Server *server,char *buffer, int fd, int i)
 {
     std::vector<std::string> cmd = server->splitCMD(buffer);
-    if (passwd(server, cmd, fd, i) == EXIT_FAILURE)
-        return (EXIT_FAILURE);
-    if (nick(server,cmd, fd, i) == EXIT_FAILURE)
-        return (EXIT_FAILURE);
-    if (user(server, cmd, fd, i) == EXIT_FAILURE)
-        return (EXIT_FAILURE);
+    
+    if (server->map_clients[fd].verif == 0)
+        passwd(server, cmd, fd, i);
+    if (server->map_clients[fd].verif == 1)
+        nick(server, cmd, fd, i);
+    if (server->map_clients[fd].verif == 2)
+        user(server, cmd, fd, i);
     if (server->map_clients[fd].is_verified == true){
         std::string rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server \r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
+        std::cout <<"• " << server->map_clients[fd].getNickName() << " is connected" << std::endl;
     }
     return (EXIT_SUCCESS); 
 }
-void setPrvMsg(Server *server, std::vector<std::string> cmd){
-    int fd;
+
+int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
+    for (size_t i = 0; i < cmd.size(); i++){
+        std::cout << cmd[i];
+    }
+    int fdTarget;
+    std::string rpl;
     for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
     {
         if (it->second.getNickName() == cmd[1]){
-            fd = it->first;
+            fdTarget = it->first;
+            // type of msgprv = :client PRIVMSG sender : message
+            std::string msg = handlemsg(cmd);
+            rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second.getNickName()+ " : " + msg;
+            send(fdTarget, rpl.c_str(), rpl.size() , 0 );
+            return (EXIT_SUCCESS);
         }
     }
-    std::string rpl = cmd[2];
-    rpl.erase(0, 1);
-    // std::cout << rpl << std::endl;
-    send(fd, rpl.c_str(), rpl.size() , 0 );
+    rpl = ":localhost 401 " + cmd[1] + " : No such nick/channel\r\n";
+    send(fd, rpl.c_str(), rpl.size(), 0);
+    return (EXIT_FAILURE);
 }
 int Server::checkQuit(std::string str){
     std::vector<std::string> cmd = this->splitCMD(str);
@@ -249,20 +257,12 @@ void joinChannel(Server* server, std::vector<std::string> cmd)
 void handleCmd(Server *server, char *buffer, int fd)
 {
     std::cout << buffer << std::endl;
-    std::string hel = buffer;
     std::vector<std::string> cmd = server->splitCMD(buffer);
-    std::cout << cmd.size() << std::endl;
-    if (cmd[0] == "QUIT" && cmd[1] == ":\r\n" && cmd.size() == 2)
-    {
-        // server->map_clients.erase(fd);
-        // remove the user for map here
-        return;   
-    }
     (void)fd;
     if (cmd[0] == "PRIVMSG")
-        setPrvMsg(server, cmd);
-    if (cmd[0] == "JOIN")
-        joinChannel(server, cmd);
+        setPrvMsg(server, cmd, fd);
+    // if (cmd[0] == "JOIN")
+    //     joinChannel(server, cmd);
         
 
 }

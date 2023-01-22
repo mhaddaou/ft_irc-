@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/15 16:17:29 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/19 17:35:22 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/22 19:21:48 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,6 @@ std::string Client::getPassword() const
     return this->_password;
 }
 
-Client::Client() : verified(false), verif(0) 
+Client::Client() : verif(0), is_verified(false) 
 {
 }
