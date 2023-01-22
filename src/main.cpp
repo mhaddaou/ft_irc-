@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/22 19:27:59 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/22 21:52:19 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,11 +89,6 @@ int main(int ac, char **av) {
                     {
                         if (server.map_clients[server.fds[i]].verified == false)
                         {
-                            // if (checkIsRoot(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]) == EXIT_SUCCESS){
-                            //     server.map_clients[server.fds[i]].is_verified = true;
-
-                            // }
-                            // else
                             connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i], i);
                         }
                         else

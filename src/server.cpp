@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/22 19:23:04 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/22 21:54:32 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,9 +94,7 @@ int nick(Server *server,std::vector<std::string> cmd, int fd, int i){
                     if (it->second.getNickName() == cmd[1]){
                         rpl = ":localhost 433 " + it->second.getNickName() + ": Nickname is already in use\r\n";
                         send(fd, rpl.c_str(), rpl.size(), 0);
-                        desconectedClient(server, fd, false);
-                        server->map_clients.erase(server->fds[i]);
-                        server->fds.erase(server->fds.begin() + i);
+                        desconectedClient(server, fd, i);
                         std::cout << "NICK IS USED" << std::endl;
                         return (EXIT_FAILURE);
                     }
@@ -116,7 +114,7 @@ int user(Server *server, std::vector<std::string> cmd, int fd, int i){
             server->map_clients[fd].setName(cmd[1]);
             server->map_clients[fd].setRealName(cmd[4]);
             server->map_clients[fd].is_verified = true;
-            server->map_clients[server->fds[i]].verified = true;
+            // server->map_clients[server->fds[i]].verified = true;
             std::cout << "USER OK" << std::endl;
             server->map_clients[fd].incrementVerf();
             return (EXIT_SUCCESS);
@@ -125,9 +123,7 @@ int user(Server *server, std::vector<std::string> cmd, int fd, int i){
             std::cout << "USER ERROR" << std::endl;
             std::string rpl = ":localhost 461 . : Not enough parameters \r\n";
             send(fd, rpl.c_str(), rpl.size(), 0);
-            desconectedClient(server, fd, false);
-            server->map_clients.erase(server->fds[i]);
-            server->fds.erase(server->fds.begin() + i);  
+            desconectedClient(server, fd, i);
         }
     }
     return (EXIT_FAILURE);
@@ -148,9 +144,7 @@ int passwd(Server *server, std::vector<std::string> cmd,  int fd, int i)
             else{
                 rpl = ":localhost 464 . : Password incorrect\r\n";
                 send(fd, rpl.c_str(), rpl.size(), 0);
-                desconectedClient(server, fd, false);
-                server->map_clients.erase(server->fds[i]);
-                server->fds.erase(server->fds.begin() + i);
+                desconectedClient(server, fd, i);
                 std::cout << "PASS INCORRECT" << std::endl;
                 return (EXIT_FAILURE);
             }
@@ -178,25 +172,23 @@ std::string Server::decrypt(std::string password){
 int connect (Server *server,char *buffer, int fd, int i)
 {
     std::vector<std::string> cmd = server->splitCMD(buffer);
-    
+    checkIsRoot(server, server->map_clients[server->fds[i]].buffer, server->fds[i]);
     if (server->map_clients[fd].verif == 0)
         passwd(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 1)
         nick(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 2)
         user(server, cmd, fd, i);
-    if (server->map_clients[fd].is_verified == true){
+    if (server->map_clients[fd].verif == 3){
         std::string rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server \r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
+        server->map_clients[server->fds[i]].verified = true;
         std::cout <<"• " << server->map_clients[fd].getNickName() << " is connected" << std::endl;
     }
     return (EXIT_SUCCESS); 
 }
 
 int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
-    for (size_t i = 0; i < cmd.size(); i++){
-        std::cout << cmd[i];
-    }
     int fdTarget;
     std::string rpl;
     for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
