@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/21 19:28:01 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/22 13:17:00 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ class Server{
         socklen_t lencli;
         fd_set sockets_list;
         fd_set readfds;
+        fd_set writefds;
         int  client_socket;
         char buffer[BUF_SIZE];
         void setaddrinfo();

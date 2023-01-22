@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/21 19:27:00 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/22 13:26:56 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ int main(int ac, char **av) {
                             desconectedClient(&server, server.fds[i], false);
                         else
                             desconectedClient(&server, server.fds[i], true);
+                        server.map_clients.erase(i);
                         server.fds.erase(server.fds.begin() + i);
                         i--;
                     }

@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/21 19:32:48 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/22 13:25:18 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,14 +114,22 @@ int nick(Server *server,std::vector<std::string> cmd, int fd, int i){
 }  
 
 int user(Server *server, std::vector<std::string> cmd, int fd, int i){
+    (void)i;
     if (cmd[0] == "USER"){
-        (void)i;
-        
-        server->map_clients[fd].setName(cmd[1]);
-        server->map_clients[fd].incrementVerf();
-        server->map_clients[fd].is_verified = true;
+        if (cmd.size() == 5){
+            server->map_clients[fd].setName(cmd[1]);
+            server->map_clients[fd].setRealName(cmd[4]);
+            server->map_clients[fd].is_verified = true;
+            std::cout << "USER OK" << std::endl;
+            return (EXIT_SUCCESS);
+        }
+        else{
+            std::cout << "USER ERROR" << std::endl;
+            std::string rpl = ":localhost 461 . : Not enough parameters \r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+        }
     }
-    return (EXIT_SUCCESS);
+    return (EXIT_FAILURE);
 }
 
 int passwd(Server *server, std::vector<std::string> cmd,  int fd, int i)
@@ -182,9 +190,6 @@ int connect (Server *server,char *buffer, int fd, int i)
     if (server->map_clients[fd].is_verified == true){
         std::string rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server \r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
-        // std::cout << server->map_clients[fd].getNickName() << std::endl;
-        // std::cout << server->map_clients[fd].getName() << std::endl;
-        // std::cout << server->map_clients[fd].getNickName()<< " "<< fd << "  is connected!" << std::endl;
     }
     return (EXIT_SUCCESS); 
 }
