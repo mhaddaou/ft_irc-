@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/22 21:51:43 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/22 22:03:08 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@
 
 
 void desconectedClient(Server *server, int fd, int i){
-    std::cout << server->map_clients[fd].getNickName() << " Disconnected" << std::endl;
+    if (server->map_clients[fd].is_verified == true)
+        std::cout << server->map_clients[fd].getNickName() << " Disconnected" << std::endl;
+    else
+         std::cout << "Guest Disconnected" << std::endl;
     server->map_clients.erase(fd);
     server->fds.erase(server->fds.begin() + i);
     close(fd); 
@@ -34,7 +37,6 @@ std::string handlemsg(std::vector<std::string> msg){
 int checkIsRoot(Server *server, std::string buffer, int fd){
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
-    std::cout << buffer << std::endl;
     if (buffer == "root")
     {
         server->map_clients[fd].setName("root");
