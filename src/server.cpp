@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 01:18:41 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 03:37:34 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,7 @@ int connect (Server *server,std::string buffer, int fd, int i)
         else
             rpl = "welcome to the server\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
-        server->map_clients[server->fds[i]].verified = true;
+        server->map_clients[server->fds[i]].is_verified = true;
         std::cout <<"• " << server->map_clients[fd].getNickName() << " is connected" << std::endl;
     }
     return (EXIT_SUCCESS); 

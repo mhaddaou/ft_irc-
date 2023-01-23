@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 00:58:14 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 03:40:24 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ class Client{
         std::string _password;
     public:
         char buffer[1024];
-        bool verified;
         int verif;
         // int fd;
         int id;
@@ -35,7 +34,7 @@ class Client{
             _nickname = cp.getNickName();
             _name = cp.getName();
             _password = cp.getPassword();
-            verified = cp.verified;
+            is_verified = cp.is_verified;
             verif = cp.verif;
             return (*this);
         }
