@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 01:07:42 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 14:00:12 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,10 +77,14 @@ int nick(Server *server, std::vector<std::string> cmd, int fd, int i);
 void user(Server *server, std::vector<std::string> cmd, int fd);
 int passwd(Server *server, std::vector<std::string> cmd, int fd, int i);
 void handleCmd(Server *server, std::string buffer, int fd);
-int setPrvMsg(std::vector<std::string> cmd, int fd);
+int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd);
 void desconectedClient(Server *server, int fd, int i);
 std::string handlemsg(std::vector<std::string> msg);
 int checkIsRoot(Server *server, std::string buffer, int fd); 
+void setNoticeMsg(Server *server, std::vector<std::string> cmd, int fd);
+void whoIs(Server *server, std::vector<std::string> cmd, int fd);
+void Nick( Server *server, std::vector<std::string> cmd, int fd);
+int checkInvalidChar(std::string nick);
 // bool isCmd(char *s)
 // {
 

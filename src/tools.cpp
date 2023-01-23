@@ -6,13 +6,14 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/22 22:03:08 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 15:25:09 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/channel.hpp"
 #include "../includes/client.hpp"
 #include "../includes/server.hpp"
+#include <stdlib.h>
 
 
 void desconectedClient(Server *server, int fd, int i){
@@ -39,11 +40,126 @@ int checkIsRoot(Server *server, std::string buffer, int fd){
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
     if (buffer == "root")
     {
-        server->map_clients[fd].setName("root");
+        server->map_clients[fd].setName("admin_server");
         server->map_clients[fd].setNickName("root");
-        server->map_clients[fd].setRealName("root");
+        server->map_clients[fd].setRealName("admin");
         server->map_clients[fd].verif = 3;
         return (EXIT_SUCCESS);
     }
     return (EXIT_FAILURE);
 }
+void setNoticeMsg(Server *server, std::vector<std::string> cmd, int fd){
+    if (cmd.size() < 3)
+        return;
+    std::string rpl;
+    std::string msg = handlemsg(cmd);
+    for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
+        if (it->second.getNickName() == cmd[1]){
+            if (server->map_clients[fd].isClient == false)
+                rpl = ":" + server->map_clients[fd].getNickName() + " NOTICE " + it->second.getNickName()+ " : " + msg;
+            else
+                rpl = "NOTICE from " + server->map_clients[fd].getNickName() + " : " + msg;
+            send(it->first, rpl.c_str(), rpl.size(),0);
+            std::cout << "NOTICE OK" << std::endl;
+        }
+    }
+}
+void whoIs(Server *server, std::vector<std::string> cmd, int fd){
+    std::string rpl;
+    // int r = server->client_address.sin_addr.s_addr;
+    if (cmd.size() == 3){
+        // if this user is operator 
+        // 313     RPL_WHOISOPERATOR
+                        // "<nick> :is an IRC operator"
+        for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
+            if (it->second.getNickName() == cmd[1]){
+                // The first line contains the nickname, username, hostname, and realname of the user being queried.
+                // The second line contains the channels the user is currently joined to.
+                // The third line contains the server that the user is connected to, and any additional server info.
+                // The fourth line indicates the end of the WHOIS list.
+                // char * ip = (it->second.client_address.sin_addr.s_addr);
+                std::string ip;
+                std::stringstream ss;
+                ss << it->second.client_address.sin_addr.s_addr;
+                ss >> ip;
+                rpl = ":localhost 311 " + server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " " + it->second.getName() + " " + ip + " * : " + it->second.getRealName() + "\n"
+                ":localhost 319 "+ server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " :channel1 channel2 channel3\n"
+               ":localhost 312 " + server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " localhost :Irc Server\n"
+                ":localhost 318 " + server->map_clients[fd].getNickName() + " " +it->second.getNickName() + " :End of /WHOIS list.";
+                // std::cout << rpl << "\n";
+                send(fd, rpl.c_str(), rpl.size(), 0);
+                return ;
+            }
+        }       
+    }
+    //:<server name> 311 <requesting nickname> <nickname> <username> <hostname> * :<realname>
+}
+
+int checkInvalidChar(std::string nick){
+    for (size_t i = 0; i < nick.size(); i++){
+        if (nick[i] == '!' || nick[i] == '@' || nick[i] == '#' || nick[i] == '$' || nick[i] == '%' || nick[i] == '^' || nick[i] == '&' 
+            || nick[i] == '*' || nick[i] == '(' || nick[i] == ')' || nick[i] == '-' || nick[i] == '+' || nick[i] == '=' || nick[i] == '{' 
+                || nick[i] == '}' || nick[i] == '[' || nick[i] == ']' || nick[i] == '|' || nick[i] == '\\' || nick[i] == ':' || nick[i] == ';'
+                    || nick[i] == '"' || nick[i] == '\'' || nick[i] == '<' || nick[i] == '>' || nick[i] == ',' || nick[i] == '.' || nick[i] == '/' 
+                        || nick[i] == '?')
+            return (EXIT_FAILURE);
+        }
+    
+    return (EXIT_SUCCESS);
+}
+
+void Nick( Server *server, std::vector<std::string> cmd, int fd){
+    std::string rpl;
+    //from limechat
+    if (server->map_clients[fd].isClient == true){
+        if (cmd.size() == 2 && cmd[1].size() == 1){
+            // std::cout << cmd[1].size() << std::endl;
+            rpl = ":localhost 431 " + server->map_clients[fd].getNickName()+  " :No nickname given\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            return ;
+        }
+        else if (cmd.size() > 3 || checkInvalidChar(cmd[1]) == EXIT_FAILURE){
+            rpl = ":localhost 432 " + server->map_clients[fd].getNickName()+  " :Erroneous nickname\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            return ;
+        }
+        else{
+            server->map_clients[fd].setNickName(cmd[1]);
+            std::cout << "NICK OK" << std::endl;
+            return ;
+        }
+        for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
+            if (it->second.getNickName() == cmd[1]){
+                rpl = ":localhost 433 " + server->map_clients[fd].getNickName()+  " :Nickname is already in use\r\n";
+                send(fd, rpl.c_str(), rpl.size(), 0);
+                return ;
+            }
+        }
+    }//from netcat
+    else{
+        if (cmd.size() == 1){
+            rpl = "ERROR \tNo nickname given\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            return ;
+        }
+        else if (cmd.size() > 2 || checkInvalidChar(cmd[1]) == EXIT_FAILURE){
+            rpl = "ERROR \tErroneous nickname\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            return ;
+        }
+        else{
+            server->map_clients[fd].setNickName(cmd[1]);
+            std::cout << "NICK OK" << std::endl;
+            return ;
+        }
+        for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
+            if (it->second.getNickName() == cmd[1]){
+                rpl = "ERROR \tNickname is already in use\r\n";
+                send(fd, rpl.c_str(), rpl.size(), 0);
+                return ;
+            }
+        }
+            
+    }
+}
+

@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 03:33:07 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 12:38:53 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ int main(int ac, char **av) {
                 // Add new client to connected server.clients map
                 server.fds.push_back(clientfd);
                 server.map_clients[clientfd];
+                server.map_clients[clientfd].client_address = server.client_address;
             }
 
             // Check if any connected server.clients have sent data
@@ -77,10 +78,7 @@ int main(int ac, char **av) {
                     if (recev_bytes && server.checkQuit(server.map_clients[server.fds[i]].buffer) == EXIT_SUCCESS)
                         recev_bytes = 0;
                     if (recev_bytes == 0)
-                    {
                         desconectedClient(&server, server.fds[i], i);
-                        // i--;
-                    }
                     else if (recev_bytes < 0)
                         std::cout << "error to read " << std::endl;
                     else

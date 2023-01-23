@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 03:40:24 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 12:24:53 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include <string.h>
 #include <iostream>
 #include "channel.hpp"
+# include <sys/socket.h>
+# include <netinet/in.h>
 #include <vector>
 
 class Client{
@@ -45,6 +47,7 @@ class Client{
         Client();
         ~Client() {}
         void setName(std::string);
+        struct sockaddr_in client_address;
         void setChannel(std::string);
         void setPassword(std::string);
         void setNickName(std::string);
