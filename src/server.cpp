@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 14:02:56 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 16:56:59 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,7 +224,7 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
             // type of msgprv = :client PRIVMSG sender : message
             std::string msg = handlemsg(cmd);
             if (server->map_clients[fdTarget].isClient == true)
-                rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second.getNickName()+ " : " + msg;
+                rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second.getNickName() + " : " + msg;
             else
                 rpl = "FROM "+ server->map_clients[fd].getNickName() + ": " + msg;
             send(fdTarget, rpl.c_str(), rpl.size() , 0 );
@@ -235,6 +235,7 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
     send(fd, rpl.c_str(), rpl.size(), 0);
     return (EXIT_FAILURE);
 }
+
 int Server::checkQuit(std::string str){
     std::vector<std::string> cmd = this->splitCMD(str);
     if (strcmp(cmd[0].c_str(), "QUIT") == 0)
@@ -242,35 +243,69 @@ int Server::checkQuit(std::string str){
     return (EXIT_FAILURE);
 }
 
-void joinChannel(Server* server, std::vector<std::string> cmd)
+void sendPrvMsg(int fd, std::string msg)
 {
-    static int id = -1;
-    
+    msg.erase(0, 1);
+    send(fd, msg.c_str(), msg.size() , 0);
+}
+
+void sendMsgToChannel(Server* server, int id, std::string msg)
+{
+    for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++)
+    {
+        if (it->second.channels._id == id && it->second.channels.is_connected)
+        {
+            sendPrvMsg(it->first, msg);        
+        }
+    }
+} 
+
+void joinChannel(Server* server, std::vector<std::string> cmd, int fd)
+{
+    static int id = -1;   
     int idChannel = -1;
-    for (size_t i = 0; i < server->channels.size(); ++i)
+    size_t i = 0;
+
+    
+    for (; i < server->channels.size(); ++i)
     {
         if (server->channels[i]._name == cmd[1])
         {
             idChannel = server->channels[i]._id;
+            break ;
         }
     }
     if (idChannel == -1)
     {
         ++id;
         Channel ch(cmd[1], id);
+        if (cmd.size() >  2)
+        {
+            ch._pass.first = true;
+            ch._pass.second = cmd[2];
+        }
         server->channels.push_back(ch);
+        std::cout << ch._id << " "<< ch._name << std::endl;
     }
     else
     {
-        for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
+        if (server->channels[i]._pass.first == true)
         {
-            for (size_t i = 0; i < it->second.channels.size(); ++i)
+            // check pass
+            if (server->channels[i]._pass.second == cmd[2])
             {
-                if (idChannel == it->second.channels[i]._id)
-                {
-                    // send msg to client it;
-                }
+                std::string rpl = ":localhost " + server->map_clients[fd].getNickName() + " : welcome to the channel" + server->channels[i]._name + "\r\n";
+                server->map_clients[fd].channels.is_connected = true;
+                send(fd, rpl.c_str(), rpl.size(), 0);
             }
+            else // pass incorrect , cant join channel
+                ;
+        }
+        else
+        {
+            std::string rpl = ":localhost 353 " + server->map_clients[fd].getNickName() + " : welcome to the channel" + server->channels[i]._name + "\r\n";
+            server->map_clients[fd].channels.is_connected = true;
+            send(fd, rpl.c_str(), rpl.size(), 0);
         }
     }
 }
@@ -290,8 +325,10 @@ void handleCmd(Server *server, std::string buffer, int fd)
         whoIs(server, cmd, fd);
     if (cmd[0] == "NICK")
         Nick(server, cmd, fd);
-    // if (cmd[0] == "JOIN")
-    //     joinChannel(server, cmd);
+    if (cmd[0] == "JOIN")
+        joinChannel(server, cmd, fd);
+    if (cmd[0] == "LIST")
+        server->lsChannels(fd);    
         
 
 }

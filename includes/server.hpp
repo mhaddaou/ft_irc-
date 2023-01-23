@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 14:00:12 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 16:05:40 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,17 @@ class Server{
         void setTime();
         std::map<int, Client> map_clients;
         std::vector<int> fds;
+        // channel
         std::vector<Channel> channels;
+                void lsChannels(int fd)
+        {
+            std::string rpl;
+            for (size_t i = 0; i < channels.size(); i++)
+            {
+                // fill rpl
+            }
+            send(fd, rpl.c_str(), rpl.size(), 0);
+        }
 };
 int connect(Server *server, std::string buffer, int fd, int i);
 int nick(Server *server, std::vector<std::string> cmd, int fd, int i);
@@ -85,7 +95,5 @@ void setNoticeMsg(Server *server, std::vector<std::string> cmd, int fd);
 void whoIs(Server *server, std::vector<std::string> cmd, int fd);
 void Nick( Server *server, std::vector<std::string> cmd, int fd);
 int checkInvalidChar(std::string nick);
-// bool isCmd(char *s)
-// {
 
-// }
+// channel
