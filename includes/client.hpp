@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/22 19:16:54 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 00:58:14 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,5 +58,6 @@ class Client{
         std::string getNickName() const;
         void incrementVerf(void) { ++verif;}
         bool is_verified;
+        bool isClient;
         std::vector<Channel>  channels;
 };

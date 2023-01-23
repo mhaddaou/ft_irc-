@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/22 22:00:53 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 01:18:41 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,8 +87,8 @@ int nick(Server *server,std::vector<std::string> cmd, int fd, int i){
     std::string rpl;
     if (cmd[0] == "NICK"){
         if (cmd.size() == 2)
-            cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].cend());
-            cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\r'), cmd[1].cend());
+            // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].cend());
+            // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\r'), cmd[1].cend());
             if (server->map_clients.size() > 0){
                 for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++){
                     if (it->second.getNickName() == cmd[1]){
@@ -134,8 +134,8 @@ int passwd(Server *server, std::vector<std::string> cmd,  int fd, int i)
     std::string rpl;
     if (cmd[0] == "PASS")
     {
-        cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].cend());
-        cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\r'), cmd[1].cend());
+        // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].cend());
+        // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\r'), cmd[1].cend());
         //check if password
         if (cmd.size() == 2)
         {
@@ -169,8 +169,13 @@ std::string Server::decrypt(std::string password){
     return password;
 }
     
-int connect (Server *server,char *buffer, int fd, int i)
+int connect (Server *server,std::string buffer, int fd, int i)
 {
+    std::string rpl;
+    if (server->isClient(buffer) == EXIT_SUCCESS)
+        server->map_clients[fd].isClient = true;
+    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
+    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
     std::vector<std::string> cmd = server->splitCMD(buffer);
     checkIsRoot(server, server->map_clients[server->fds[i]].buffer, server->fds[i]);
     if (server->map_clients[fd].verif == 0)
@@ -180,7 +185,10 @@ int connect (Server *server,char *buffer, int fd, int i)
     if (server->map_clients[fd].verif == 2)
         user(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 3){
-        std::string rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server \r\n";
+        if (server->map_clients[fd].isClient == true)
+            rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server \r\n";
+        else
+            rpl = "welcome to the server\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
         server->map_clients[server->fds[i]].verified = true;
         std::cout <<"• " << server->map_clients[fd].getNickName() << " is connected" << std::endl;
@@ -191,13 +199,32 @@ int connect (Server *server,char *buffer, int fd, int i)
 int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
     int fdTarget;
     std::string rpl;
+    if (cmd.size() < 3){
+        if (cmd.size() < 2){
+            if (server->map_clients[fd].isClient == true)
+                rpl = ":localhost 461 "+ server->map_clients[fd].getNickName() +": Not enough parameters \r\n";
+            else
+                rpl = "Not enough parameters\n";
+        }
+        else{
+            if (server->map_clients[fd].isClient == true)
+                rpl = ":localhost 412 " + server->map_clients[fd].getNickName()+ ": No text to send\r\n";
+            else
+                rpl = "No text to send\n";
+        }
+        send(fd, rpl.c_str() , rpl.size(), 0);
+        return (EXIT_FAILURE);
+    }
     for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
     {
         if (it->second.getNickName() == cmd[1]){
             fdTarget = it->first;
             // type of msgprv = :client PRIVMSG sender : message
             std::string msg = handlemsg(cmd);
-            rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second.getNickName()+ " : " + msg;
+            if (server->map_clients[fdTarget].isClient == true)
+                rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second.getNickName()+ " : " + msg;
+            else
+                rpl = "FROM "+ server->map_clients[fd].getNickName() + ": " + msg;
             send(fdTarget, rpl.c_str(), rpl.size() , 0 );
             return (EXIT_SUCCESS);
         }
@@ -246,11 +273,13 @@ void joinChannel(Server* server, std::vector<std::string> cmd)
     }
 }
 
-void handleCmd(Server *server, char *buffer, int fd)
+void handleCmd(Server *server, std::string buffer, int fd)
 {
-    std::cout << buffer << std::endl;
+    if (server->isClient(buffer) == EXIT_SUCCESS)
+        server->map_clients[fd].isClient = true;
+    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
+    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
     std::vector<std::string> cmd = server->splitCMD(buffer);
-    (void)fd;
     if (cmd[0] == "PRIVMSG")
         setPrvMsg(server, cmd, fd);
     // if (cmd[0] == "JOIN")

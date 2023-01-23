@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/22 21:52:19 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/23 01:05:55 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,7 @@ int main(int ac, char **av) {
 
             // Check if any connected server.clients have sent data
             for (size_t i = 0; i < server.fds.size(); ++i ) 
-            {
-                    
+            {   
                 if (FD_ISSET(server.fds[i], &server.readfds))
                 {
                     memset(server.map_clients[server.fds[i]].buffer, 0, BUF_SIZE);
@@ -80,7 +79,6 @@ int main(int ac, char **av) {
                     if (recev_bytes == 0)
                     {
                         desconectedClient(&server, server.fds[i], i);
-                        
                         i--;
                     }
                     else if (recev_bytes < 0)
@@ -88,15 +86,9 @@ int main(int ac, char **av) {
                     else
                     {
                         if (server.map_clients[server.fds[i]].verified == false)
-                        {
                             connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i], i);
-                        }
                         else
-                        {
-                            
-                            
                             handleCmd(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
-                        }
                     }
                 }
             }
