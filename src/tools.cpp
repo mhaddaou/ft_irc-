@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 15:25:09 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/24 19:19:19 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,5 +161,32 @@ void Nick( Server *server, std::vector<std::string> cmd, int fd){
         }
             
     }
+}
+int notEnoghtPrmt(Server *server, std::vector<std::string> buffer, int fd){
+    std::string rpl;
+    int check = 0;
+   if (server->map_clients[fd].isClient == true){
+            if (buffer.size() < 3 ){
+                if (buffer.size() == 2 && buffer[1].size() == 1){
+                    rpl = ":localhost 461 " + server->map_clients[fd].getNickName() + " : Not enough parameters\r\n";
+                    check = 1;
+                }
+            }
+        }
+        else{
+            if (buffer.size() < 2){
+                rpl = "Not enough parameters\n";
+                check = 1;
+            }
+        }
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        return (check);
+}
+
+void join (Server *server, std::vector<std::string> buffer, int fd){
+    std::string rpl;
+    if (notEnoghtPrmt(server, buffer, fd) == 1)
+        return;
+    
 }
 

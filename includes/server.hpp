@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 14:00:12 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/24 18:19:14 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,5 @@ void setNoticeMsg(Server *server, std::vector<std::string> cmd, int fd);
 void whoIs(Server *server, std::vector<std::string> cmd, int fd);
 void Nick( Server *server, std::vector<std::string> cmd, int fd);
 int checkInvalidChar(std::string nick);
-// bool isCmd(char *s)
-// {
-
-// }
+void join (Server *server, std::vector<std::string> buffer, int fd);
+int notEnoghtPrmt(Server *server, int len, int fd);

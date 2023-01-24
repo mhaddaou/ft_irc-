@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 14:02:56 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/24 18:14:45 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,38 +242,8 @@ int Server::checkQuit(std::string str){
     return (EXIT_FAILURE);
 }
 
-void joinChannel(Server* server, std::vector<std::string> cmd)
-{
-    static int id = -1;
+
     
-    int idChannel = -1;
-    for (size_t i = 0; i < server->channels.size(); ++i)
-    {
-        if (server->channels[i]._name == cmd[1])
-        {
-            idChannel = server->channels[i]._id;
-        }
-    }
-    if (idChannel == -1)
-    {
-        ++id;
-        Channel ch(cmd[1], id);
-        server->channels.push_back(ch);
-    }
-    else
-    {
-        for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
-        {
-            for (size_t i = 0; i < it->second.channels.size(); ++i)
-            {
-                if (idChannel == it->second.channels[i]._id)
-                {
-                    // send msg to client it;
-                }
-            }
-        }
-    }
-}
 
 void handleCmd(Server *server, std::string buffer, int fd)
 {
@@ -290,8 +260,8 @@ void handleCmd(Server *server, std::string buffer, int fd)
         whoIs(server, cmd, fd);
     if (cmd[0] == "NICK")
         Nick(server, cmd, fd);
-    // if (cmd[0] == "JOIN")
-    //     joinChannel(server, cmd);
+    if (cmd[0] == "JOIN")
+        join(server, cmd, fd);
         
 
 }
