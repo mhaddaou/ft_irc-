@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 16:56:59 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/23 18:57:31 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,7 +278,7 @@ void joinChannel(Server* server, std::vector<std::string> cmd, int fd)
     if (idChannel == -1)
     {
         ++id;
-        Channel ch(cmd[1], id);
+        Channel ch(fd, cmd[1], id);
         if (cmd.size() >  2)
         {
             ch._pass.first = true;
@@ -294,7 +294,11 @@ void joinChannel(Server* server, std::vector<std::string> cmd, int fd)
             // check pass
             if (server->channels[i]._pass.second == cmd[2])
             {
-                std::string rpl = ":localhost " + server->map_clients[fd].getNickName() + " : welcome to the channel" + server->channels[i]._name + "\r\n";
+                std::string rpl = ":" + server->map_clients[fd].getNickName() + "!"  + server->map_clients[fd].getName() + "@" + "127.0.0.1" + "JOIN" + "\r\n"
+                ":localhost 332 " + server->map_clients[fd].getNickName() + " " + server->channels[i]._name + " :Welcome to the channel" + "\r\n"
+                ":localhost 333 " + server->map_clients[fd].getNickName() + " "  + server->channels[i]._name + " " + server->map_clients[server->channels[i]._owner].getNickName() + "!"  
+                + server->map_clients[server->channels[i]._owner].getName() + "@" + "127.0.0.1" + " 1595492699" + "\r\n"
+                ":localhost 353 " + server->map_clients[fd].getNickName() + " @ " + server->channels[i]._name + " :"   + "\r\n";
                 server->map_clients[fd].channels.is_connected = true;
                 send(fd, rpl.c_str(), rpl.size(), 0);
             }

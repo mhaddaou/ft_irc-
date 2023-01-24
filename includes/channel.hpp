@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 01:06:51 by smia              #+#    #+#             */
-/*   Updated: 2023/01/23 16:07:30 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/23 18:52:04 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ class Channel
         std::pair<bool, std::string> _pass;
         int _id;
         bool is_connected;
+        int _owner; // fd
         std::string _name;
         std::string _role;
         Channel() : is_connected(false) {}
@@ -34,19 +35,13 @@ class Channel
             _pass = cp._pass;
             return (*this);
         }
-        Channel(std::string n, int id)
+        Channel(int fd, std::string n, int id)
         {
+            _owner = fd;
             _id = id;
             is_connected = false;
             this->_name = n;
             _pass.first = false;
         }
-        Channel(std::string n, std::string pass, int id)
-        {
-            _id = id;
-            this->_name = n;
-            is_connected = false;
-            this->_pass.first = true;
-            this->_pass.second = pass;
-        }
+
 };
