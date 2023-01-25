@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 19:12:46 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/25 19:28:19 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,20 +210,13 @@ int notEnoghtPrmt(Server *server, std::vector<std::string> buffer, int fd){
 
 void join (Server *server, std::vector<std::string> buffer, int fd)
 {
-            // createNewChannel(server, buffer, fd);
-    if (server->map_channels.size() == 0){
-        //create new channel
+    if (server->map_channels.size() == 0)
         createNewChannel(server, buffer, fd);
-    }
     else {
-        if (checkChannel(server, buffer[1]) == EXIT_SUCCESS){
+        if (checkChannel(server, buffer[1]) == EXIT_SUCCESS)
             createNewChannel(server, buffer, fd);
-        }
         else
-        {
             joinToExistingChannel(server, buffer, fd);
-        }
-    
     }
 }
 

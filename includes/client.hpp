@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 12:36:02 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/25 19:31:41 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,8 @@ class Client{
         void incrementVerf(void) { ++verif;}
         bool is_verified;
         bool isClient;
+        std::vector<int> id_channels;
+        std::vector<std::string> Name_Channels;
         std::string client_info()
 		{
                 std::string ip;
