@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 11:52:45 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/25 12:35:30 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,6 +191,8 @@ void join_as_operator(int fd, Channel *channel, Client client)
                       ":localhost 353 " + client.getNickName() + " = " + channel->_name + " :@" + client.getNickName() + "\r\n"
                       ":localhost 366 " + client.getNickName() + " " + channel->_name + " :End of /NAMES list." + "\r\n";
     send(fd, rpl.c_str(), rpl.size(), 0);
+    // send to all membres that new client has joined channel
+    
 }
 
 void join_as_member(int fd, Channel *channel, Client client)
@@ -203,6 +205,7 @@ void join_as_member(int fd, Channel *channel, Client client)
                       ":localhost 366 " + client.getNickName() + " " + channel->_name + " :End of /NAMES list." + "\r\n";
     send(fd, rpl.c_str(), rpl.size(), 0);
     // send to all membres that new client has joined channel
+    
 }
 
 void join (Server *server, std::vector<std::string> buffer, int fd)
@@ -239,7 +242,7 @@ void join (Server *server, std::vector<std::string> buffer, int fd)
         // pass incorrect cant join channel
         return ;
     }
-    if (server->channels[i]._memebers.size() == 0)
+    if (server->channels[i]._operators.size() == 0)
         join_as_operator(fd, &(server->channels[i]), client);
     else
         join_as_member(fd, &(server->channels[i]), client);

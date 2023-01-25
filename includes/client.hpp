@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 11:57:53 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/25 12:36:02 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,6 @@ class Client{
                 std::stringstream ss;
                 ss << this->client_address.sin_addr.s_addr;
                 ss >> ip;
-			return (_nickname + "!" + _name + "@" + ip);
+			return (_nickname + "!" + _name + "@" + "127.0.0.1");
 		}
 };

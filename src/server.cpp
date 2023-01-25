@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 12:06:15 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/25 12:32:23 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,11 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
                     std::string msg = handlemsg(cmd);
                     rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->first + " : " + msg;
                     send(it->second.fd, rpl.c_str(), rpl.size(), 0);
-                }                 
+                }
+                    
+                // rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + server->channels[i]._name + " : " + msg;
+                
+                return 1;                 
             }
         }
     }
