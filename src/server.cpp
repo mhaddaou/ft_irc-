@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/24 18:14:45 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/25 12:06:15 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ int nick(Server *server,std::vector<std::string> cmd, int fd, int i){
             // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].cend());
             // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\r'), cmd[1].cend());
             if (server->map_clients.size() > 0){
-                for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++){
+                for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++){
                     if (it->second.getNickName() == cmd[1]){
                         rpl = ":localhost 433 " + it->second.getNickName() + ": Nickname is already in use\r\n";
                         send(fd, rpl.c_str(), rpl.size(), 0);
@@ -201,6 +201,28 @@ int connect (Server *server,std::string buffer, int fd, int i)
 int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
     int fdTarget;
     std::string rpl;
+    if (cmd[1][0] == '#')
+    {
+        for (size_t i = 0; i < server->channels.size(); i++)
+        {
+            if (cmd[1] == server->channels[i]._name)
+            {
+                // send msg to all users channel
+                for (std::map<std::string, Client>::const_iterator it = server->channels[i]._memebers.begin(); it != server->channels[i]._memebers.end(); ++it)
+                {
+                    std::string msg = handlemsg(cmd);
+                    rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->first + " : " + msg;
+                    send(it->second.fd, rpl.c_str(), rpl.size(), 0);
+                }
+                for (std::map<std::string, Client>::const_iterator it = server->channels[i]._operators.begin(); it != server->channels[i]._operators.end(); ++it)
+                {
+                    std::string msg = handlemsg(cmd);
+                    rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->first + " : " + msg;
+                    send(it->second.fd, rpl.c_str(), rpl.size(), 0);
+                }                 
+            }
+        }
+    }
     if (cmd.size() < 3){
         if (cmd.size() < 2){
             if (server->map_clients[fd].isClient == true)
@@ -217,7 +239,7 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
         send(fd, rpl.c_str() , rpl.size(), 0);
         return (EXIT_FAILURE);
     }
-    for (iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
+    for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
     {
         if (it->second.getNickName() == cmd[1]){
             fdTarget = it->first;
@@ -247,6 +269,7 @@ int Server::checkQuit(std::string str){
 
 void handleCmd(Server *server, std::string buffer, int fd)
 {
+    std::cout << buffer << std::endl;
     if (server->isClient(buffer) == EXIT_SUCCESS)
         server->map_clients[fd].isClient = true;
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());

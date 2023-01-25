@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 12:24:53 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/25 11:57:53 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 # include <sys/socket.h>
 # include <netinet/in.h>
 #include <vector>
-
+#include <sstream>
+class Channel;
 class Client{
     private:
         std::string _nickname;
@@ -29,7 +30,7 @@ class Client{
     public:
         char buffer[1024];
         int verif;
-        // int fd;
+        int fd;
         int id;
         Client& operator=(Client const &cp)
         {
@@ -61,5 +62,12 @@ class Client{
         void incrementVerf(void) { ++verif;}
         bool is_verified;
         bool isClient;
-        std::vector<Channel>  channels;
+        std::string client_info()
+		{
+                std::string ip;
+                std::stringstream ss;
+                ss << this->client_address.sin_addr.s_addr;
+                ss >> ip;
+			return (_nickname + "!" + _name + "@" + ip);
+		}
 };

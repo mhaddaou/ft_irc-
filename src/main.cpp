@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 12:38:53 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/25 11:58:51 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,10 @@ int main(int ac, char **av) {
                     continue;
                 }
                 // Add new client to connected server.clients map
+                
                 server.fds.push_back(clientfd);
                 server.map_clients[clientfd];
+                server.map_clients[clientfd].fd = clientfd;
                 server.map_clients[clientfd].client_address = server.client_address;
             }
 
