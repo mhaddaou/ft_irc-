@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 01:06:51 by smia              #+#    #+#             */
-/*   Updated: 2023/01/25 11:32:31 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/25 18:14:26 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,24 @@
 #include "server.hpp"
 #include <map>
 class Client;
+class Server;
 class Channel
 {
 
     public:
-        std::pair<bool, std::string> _pass;
-        int _id;
         std::string _name;
-        Channel(std::string n, int id)
-        {
-            _id = id;
-            this->_name = n;
-            _pass.first = false;
-        }
-        std::map<std::string, Client> _memebers; // key NickName
-        std::map<std::string,Client>  _operators; // key NickName
-        std::string channel_membres(void);
+        bool _pass;
+        int _limit;
+        std::string _password;
+        Channel();
+        ~Channel();
+        
+        std::vector<int> _fds;
+        std::vector<int> _members;
+        std::vector<int> _operators;
+        
 };
+
+int createNewChannel(Server *server, std::vector<std::string> buffer, int fd);
+int checkChannel(Server *server, std::string name);
+void joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd);

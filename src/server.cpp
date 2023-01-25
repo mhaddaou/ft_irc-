@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 12:32:23 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/25 18:57:28 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 Server::Server(char * port, char * passwd){
     this->_port = atoi(port);
     this->_passwd = this->encrypt(passwd);
+    this->_id_channel = 0;
 }
 
 void Server::setaddrinfo()
@@ -187,6 +188,7 @@ int connect (Server *server,std::string buffer, int fd, int i)
     if (server->map_clients[fd].verif == 2)
         user(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 3){
+        std::cout << "fd "<<fd << std::endl;
         if (server->map_clients[fd].isClient == true)
             rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server \r\n";
         else
@@ -201,31 +203,37 @@ int connect (Server *server,std::string buffer, int fd, int i)
 int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
     int fdTarget;
     std::string rpl;
+    std::string msg;
     if (cmd[1][0] == '#')
     {
-        for (size_t i = 0; i < server->channels.size(); i++)
+        std::cout << "hani" << std::endl;
+        for (size_t i = 0; i < server->Channels.size(); i++)
         {
-            if (cmd[1] == server->channels[i]._name)
-            {
-                // send msg to all users channel
-                for (std::map<std::string, Client>::const_iterator it = server->channels[i]._memebers.begin(); it != server->channels[i]._memebers.end(); ++it)
-                {
-                    std::string msg = handlemsg(cmd);
-                    rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->first + " : " + msg;
-                    send(it->second.fd, rpl.c_str(), rpl.size(), 0);
-                }
-                for (std::map<std::string, Client>::const_iterator it = server->channels[i]._operators.begin(); it != server->channels[i]._operators.end(); ++it)
-                {
-                    std::string msg = handlemsg(cmd);
-                    rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->first + " : " + msg;
-                    send(it->second.fd, rpl.c_str(), rpl.size(), 0);
-                }
-                    
-                // rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + server->channels[i]._name + " : " + msg;
+            if (server->Channels[i] == cmd[1]){
                 
-                return 1;                 
+                for (IteratorChannel it = server->map_channels.begin(); it != server->map_channels.end(); it++)
+                {
+                    if (it->second._name == cmd[1])
+                    {
+                        msg = handlemsg(cmd);
+                        // std::cout << "msg is == "<< msg << std::endl;
+                        // :irc.example.com PRIVMSG #test :Hello, everyone!
+
+                        rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second._name+ " : " + msg;
+                        std::cout << "size == " << it->second._fds.size() << std::endl;
+                        for(size_t j = 0; j < it->second._fds.size(); j++)
+                        {
+                            std::cout << "j == " << j << std::endl;
+                            send(it->second._fds[j], rpl.c_str(), rpl.size(), 0);
+                            
+                        }
+                        // fdTarget = it->first;
+                        // break;
+                    }
+                }
             }
         }
+        return 1;
     }
     if (cmd.size() < 3){
         if (cmd.size() < 2){
@@ -248,7 +256,7 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
         if (it->second.getNickName() == cmd[1]){
             fdTarget = it->first;
             // type of msgprv = :client PRIVMSG sender : message
-            std::string msg = handlemsg(cmd);
+            msg = handlemsg(cmd);
             if (server->map_clients[fdTarget].isClient == true)
                 rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second.getNickName()+ " : " + msg;
             else
