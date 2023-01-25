@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 18:57:28 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/25 19:11:33 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,19 +216,12 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
                     if (it->second._name == cmd[1])
                     {
                         msg = handlemsg(cmd);
-                        // std::cout << "msg is == "<< msg << std::endl;
-                        // :irc.example.com PRIVMSG #test :Hello, everyone!
-
                         rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second._name+ " : " + msg;
-                        std::cout << "size == " << it->second._fds.size() << std::endl;
                         for(size_t j = 0; j < it->second._fds.size(); j++)
                         {
-                            std::cout << "j == " << j << std::endl;
-                            send(it->second._fds[j], rpl.c_str(), rpl.size(), 0);
-                            
+                            if (it->second._fds[j] != fd)
+                                send(it->second._fds[j], rpl.c_str(), rpl.size(), 0);   
                         }
-                        // fdTarget = it->first;
-                        // break;
                     }
                 }
             }

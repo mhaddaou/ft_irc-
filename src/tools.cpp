@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 18:26:51 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/25 19:12:46 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,6 @@ void join (Server *server, std::vector<std::string> buffer, int fd)
     if (server->map_channels.size() == 0){
         //create new channel
         createNewChannel(server, buffer, fd);
-        std::cout << "size == " << server->Channels.size() << std::endl;
     }
     else {
         if (checkChannel(server, buffer[1]) == EXIT_SUCCESS){
