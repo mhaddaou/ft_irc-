@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 18:38:59 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/27 13:03:07 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 class Channel;
 class Client;
 typedef std::map<int, Client>::iterator Iterator;
-typedef std::map<int, Channel>::iterator IteratorChannel;
+typedef std::map<std::string, Channel>::iterator IteratorChannel;
 
 class Server{
     private:
@@ -72,7 +72,7 @@ class Server{
         void setTime();
         std::map<int, Client> map_clients;
         std::vector<int> fds;
-        std::map<int ,Channel > map_channels;
+        std::map<std::string ,Channel > map_channels;
         int _id_channel;
         std::vector<std::string> Channels;
 };

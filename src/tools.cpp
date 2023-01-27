@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tools.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 11:34:56 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/27 13:07:51 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,8 @@ int notEnoghtPrmt(Server *server, std::vector<std::string> buffer, int fd){
     std::string rpl;
     int check = 0;
    if (server->map_clients[fd].isClient == true){
-            if (buffer.size() < 3 ){
+            if (buffer.size() < 3 )
+            {
                 if (buffer.size() == 2 && buffer[1].size() == 1){
                     rpl = ":localhost 461 " + server->map_clients[fd].getNickName() + " : Not enough parameters\r\n";
                     check = 1;
@@ -208,20 +209,13 @@ int notEnoghtPrmt(Server *server, std::vector<std::string> buffer, int fd){
     
 // }
 
-void join (Server *server, std::vector<std::string> buffer, int fd)
+// wi
+void join(Server *server, std::vector<std::string> buffer, int fd)
 {
-    if (server->map_channels.size() == 0){
-        createNewChannel(server, buffer, fd);
+    if (checkChannel(server, buffer[1]) == EXIT_SUCCESS){
         //:dan!d@localhost KICK #Melbourne alice :dan
-        
+        createNewChannel(server, buffer, fd);
     }
-    else {
-        if (checkChannel(server, buffer[1]) == EXIT_SUCCESS)
-            createNewChannel(server, buffer, fd);
-        else
-            joinToExistingChannel(server, buffer, fd);
-    }
+    else
+        joinToExistingChannel(server, buffer, fd);
 }
-
-
-
