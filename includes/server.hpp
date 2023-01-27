@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 13:03:07 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 18:22:03 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ class Server{
         int _select();
         int _accept();
         void listOfSockets();
-        std::vector<std::string> splitCMD(std::string msg);
+        std::vector<std::string> splitCMD(std::string msg, char l);
         struct timeval timeout;
         void setTime();
         std::map<int, Client> map_clients;
@@ -89,7 +89,7 @@ void setNoticeMsg(Server *server, std::vector<std::string> cmd, int fd);
 void whoIs(Server *server, std::vector<std::string> cmd, int fd);
 void Nick( Server *server, std::vector<std::string> cmd, int fd);
 int checkInvalidChar(std::string nick);
-void join (Server *server, std::vector<std::string> buffer, int fd);
+void join (Server *server, std::string buffer, int fd);
 void join_as_member(int fd, Channel *channel, Client client);
 void join_as_operator(int fd, Channel *channel, Client client);
 int notEnoghtPrmt(Server *server, int len, int fd);

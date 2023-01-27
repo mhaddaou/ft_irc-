@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 16:23:49 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 18:19:56 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,8 +187,9 @@ int notEnoghtPrmt(Server *server, std::vector<std::string> buffer, int fd){
         return (check);
 }
 
-void join(Server *server, std::vector<std::string> buffer, int fd)
+void join(Server *server, std::string cmd, int fd)
 {
+    std::vector<std::string> buffer = server->splitCMD(cmd, ' ');
     if (checkChannel(server, buffer[1]) == EXIT_SUCCESS)
     {
         createNewChannel(server, buffer, fd);

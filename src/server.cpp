@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 18:05:19 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 18:22:18 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,12 +71,12 @@ int Server::_select(){
     return (EXIT_SUCCESS);
 }
 
-std::vector<std::string> Server::splitCMD(std::string msg){
+std::vector<std::string> Server::splitCMD(std::string msg, char l){
     
     std::vector<std::string> cmd;
     std::stringstream ss(msg);
     std::string word;
-    while (getline(ss, word, ' ')) { 
+    while (getline(ss, word, l)) { 
     cmd.push_back(word);
     }
     return (cmd);
@@ -179,7 +179,7 @@ int connect (Server *server,std::string buffer, int fd, int i)
         server->map_clients[fd].isClient = true;
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
-    std::vector<std::string> cmd = server->splitCMD(buffer);
+    std::vector<std::string> cmd = server->splitCMD(buffer, ' ');
     checkIsRoot(server, server->map_clients[server->fds[i]].buffer, server->fds[i]);
     if (server->map_clients[fd].verif == 0)
         passwd(server, cmd, fd, i);
@@ -263,7 +263,7 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
     return (EXIT_FAILURE);
 }
 int Server::checkQuit(std::string str){
-    std::vector<std::string> cmd = this->splitCMD(str);
+    std::vector<std::string> cmd = this->splitCMD(str, ' ');
     if (strcmp(cmd[0].c_str(), "QUIT") == 0)
             return (EXIT_SUCCESS);
     return (EXIT_FAILURE);
@@ -285,7 +285,7 @@ void handleCmd(Server *server, std::string buffer, int fd)
         server->map_clients[fd].isClient = true;
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
-    std::vector<std::string> cmd = server->splitCMD(buffer);
+    std::vector<std::string> cmd = server->splitCMD(buffer, ' ');
     if (cmd[0] == "PRIVMSG")
         setPrvMsg(server, cmd, fd);
     if (cmd[0] == "NOTICE")
@@ -295,7 +295,7 @@ void handleCmd(Server *server, std::string buffer, int fd)
     if (cmd[0] == "NICK")
         Nick(server, cmd, fd);
     if (cmd[0] == "JOIN")
-        join(server, cmd, fd);
+        join(server, buffer, fd);
     if (cmd[0] == "PART")
         part(server, cmd, fd);
 }
