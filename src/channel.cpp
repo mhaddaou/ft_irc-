@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/25 19:36:12 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/27 11:19:38 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,8 @@ int checkChannel(Server *server, std::string name){
     
 }
 void joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd){
-    std::string rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n"
+    std::string rpl;
+    rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n"
     ":localhost 332 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :This is my cool channel! https://irc.com\r\n"
     ":localhost 333 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " " + server->map_clients[fd].getNickName() +"!" +server->map_clients[fd].getChannel() +"@localhost"  " 1547691506\r\n"
     ":localhost 353 " + server->map_clients[fd].getNickName() + " @ " + buffer[1] + " :" + server->map_clients[fd].getNickName() + " @"+ server->map_clients[fd].getNickName() + "\r\n"
@@ -74,6 +75,12 @@ void joinToExistingChannel(Server *server, std::vector<std::string> buffer, int 
         if (it->second._name == buffer[1]){
             it->second._fds.push_back(fd);
             it->second._members.push_back(fd);
+            rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n";
+            for(size_t j = 0; j < it->second._fds.size(); j++)
+            {
+                if (it->second._fds[j] != fd)
+                    send(it->second._fds[j], rpl.c_str(), rpl.size(), 0);   
+            }
         }
     }
 }
