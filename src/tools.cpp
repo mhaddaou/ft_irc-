@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 13:07:51 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 16:23:49 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,16 +165,19 @@ void Nick( Server *server, std::vector<std::string> cmd, int fd){
 int notEnoghtPrmt(Server *server, std::vector<std::string> buffer, int fd){
     std::string rpl;
     int check = 0;
-   if (server->map_clients[fd].isClient == true){
+   if (server->map_clients[fd].isClient == true)
+   {
             if (buffer.size() < 3 )
             {
-                if (buffer.size() == 2 && buffer[1].size() == 1){
+                if (buffer.size() == 2 && buffer[1].size() == 1)
+                {
                     rpl = ":localhost 461 " + server->map_clients[fd].getNickName() + " : Not enough parameters\r\n";
                     check = 1;
                 }
             }
         }
-        else{
+        else
+        {
             if (buffer.size() < 2){
                 rpl = "Not enough parameters\n";
                 check = 1;
@@ -184,36 +187,10 @@ int notEnoghtPrmt(Server *server, std::vector<std::string> buffer, int fd){
         return (check);
 }
 
-// void join_as_operator(int fd, Channel *channel, Client client)
-// {
-//     channel->_operators[client.getNickName()];
-//     std::string rpl = ":" + client.client_info() + " JOIN " + channel->_name + "\r\n"
-//                       ":localhost MODE " + "nt" + " +nt\r\n"
-//                       ":localhost 353 " + client.getNickName() + " = " + channel->_name + " :@" + client.getNickName() + "\r\n"
-//                       ":localhost 366 " + client.getNickName() + " " + channel->_name + " :End of /NAMES list." + "\r\n";
-//     send(fd, rpl.c_str(), rpl.size(), 0);
-//     // send to all membres that new client has joined channel
-    
-// }
-
-// void join_as_member(int fd, Channel *channel, Client client)
-// {
-//     channel->_memebers.insert(std::pair<std::string, Client>(client.getNickName(), client));
-//     std::string rpl = ":" + client.client_info() + " JOIN " + channel->_name + "\r\n"
-//                       ":localhost 332 " + client.getNickName() + " " + channel->_name + " :Welcome to channel!\r\n"
-//                       ":localhost 333 " + client.getNickName() + " " + channel->_name + " " + channel->_operators.begin()->second.client_info() + " 1547691506\r\n"
-//                       ":localhost 353 " + client.getNickName() + " @ " + channel->_name + " :" +  channel->channel_membres() + "\r\n"
-//                       ":localhost 366 " + client.getNickName() + " " + channel->_name + " :End of /NAMES list." + "\r\n";
-//     send(fd, rpl.c_str(), rpl.size(), 0);
-//     // send to all membres that new client has joined channel
-    
-// }
-
-// wi
 void join(Server *server, std::vector<std::string> buffer, int fd)
 {
-    if (checkChannel(server, buffer[1]) == EXIT_SUCCESS){
-        //:dan!d@localhost KICK #Melbourne alice :dan
+    if (checkChannel(server, buffer[1]) == EXIT_SUCCESS)
+    {
         createNewChannel(server, buffer, fd);
     }
     else

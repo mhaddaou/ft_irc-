@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 19:11:33 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/27 17:12:20 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,7 +270,10 @@ int Server::checkQuit(std::string str){
 }
 
 
-    
+void part(Server *server,std::vector<std::string> cmd, int fd)
+{
+    server->map_channels[cmd[1]].kick_member(fd, server);
+}
 
 void handleCmd(Server *server, std::string buffer, int fd)
 {
@@ -290,8 +293,8 @@ void handleCmd(Server *server, std::string buffer, int fd)
         Nick(server, cmd, fd);
     if (cmd[0] == "JOIN")
         join(server, cmd, fd);
-        
-
+    if (cmd[0] == "PART")
+        part(server, cmd, fd);
 }
 
 int Server::isClient(std::string str){

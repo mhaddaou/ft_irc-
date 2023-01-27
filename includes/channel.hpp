@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 01:06:51 by smia              #+#    #+#             */
-/*   Updated: 2023/01/25 18:14:26 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/27 16:39:57 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class Channel
         std::vector<int> _fds;
         std::vector<int> _members;
         std::vector<int> _operators;
+        void kick_member(int fd, Server* server);
         
 };
 
