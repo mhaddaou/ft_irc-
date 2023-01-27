@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 18:55:32 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/27 20:28:42 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,8 @@ int nick(Server *server,std::vector<std::string> cmd, int fd, int i){
             // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].cend());
             // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\r'), cmd[1].cend());
             if (server->map_clients.size() > 0){
-                for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++){
+                for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++)
+                {
                     if (it->second.getNickName() == cmd[1]){
                         rpl = ":localhost 433 " + it->second.getNickName() + ": Nickname is already in use\r\n";
                         send(fd, rpl.c_str(), rpl.size(), 0);
