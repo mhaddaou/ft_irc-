@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/27 18:51:53 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/27 21:09:26 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,41 +18,36 @@ Channel::~Channel(){}
 void Channel::kick_member(int fd, Server* server)
 {
     Client client = server->map_clients[fd];
-    // check if client is joined channel
-    ;
     // if channel empty 
-    puts("1");
     if (this->_fds.size() == 1)
     {
         std::string rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
         return ;
     }
-    puts("2");
-    for (std::vector<int>::iterator it = this->_fds.begin(); it != this->_fds.end(); ++it)
+    for (size_t i = 0; i < this->_fds.size(); ++i)
     {
-        if (*it == fd)
-            this->_fds.erase(it);
+        if (this->_fds[i] == fd)
+            this->_fds.erase(this->_fds.begin() + i);
     }
-    for (std::vector<int>::iterator it = this->_members.begin(); it != this->_members.end(); ++it)
+    for (size_t i = 0; i < this->_members.size(); ++i)
     {
-        if (*it == fd)
-            this->_members.erase(it);
+        if (this->_members[i] == fd)
+            this->_members.erase(this->_members.begin() + i);
     }
-    puts("3");
-    for (std::vector<int>::iterator it = this->_operators.begin(); it != this->_operators.end(); ++it)
+    for (size_t i = 0; i < this->_operators.size(); ++i)
     {
-        if (*it == fd)
-            this->_operators.erase(it);
+        if (this->_operators[i] == fd)
+            this->_operators.erase(this->_operators.begin() + i);
     }
-    puts("4");
     std::string rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
     send(fd, rpl.c_str(), rpl.size(), 0);
     rpl.clear();
     rpl = client.client_info() + " PART " + this->_name + "\r\n";
-    for (std::vector<int>::iterator it = this->_fds.begin(); it != this->_fds.end(); ++it)
+    // send to all memebres that one client PART
+    for (size_t i = 0; i < this->_fds.size(); ++i)
     {
-        send(*it, rpl.c_str(), rpl.size(), 0);
+        send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
     }
 }
 
@@ -91,7 +86,6 @@ int createNewChannel(Server *server, std::vector<std::string> buffer, int fd)
     server->Channels.push_back(Ch._name);
     server->_id_channel++;
     //send to the client that the channel is created
-    // client.client_info()
     rpl = ":" +server->map_clients[fd].client_info() + " JOIN " + buffer[1] + "\r\n"
         + ":loclahost" + " MODE " + buffer[1] + " +nt\r\n"
         + ":localhost" + " 353 " + server->map_clients[fd].getNickName() + " = " + buffer[1] + " :" + server->map_clients[fd].getNickName() + "\r\n"
@@ -140,15 +134,15 @@ int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int f
         send(fd, rpl.c_str(), rpl.size(), 0);
         return (EXIT_FAILURE);
     }
+    // add fd client to the channel
+    // server->map_channels[buffer[1]]._fds.push_back(fd);
+    // server->map_channels[buffer[1]]._members.push_back(fd);
     std::string rpl;
     rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n"
     ":localhost 332 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :This is my cool channel! https://irc.com\r\n"
     ":localhost 333 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " " + server->map_clients[fd].getNickName() +"!" +server->map_clients[fd].getChannel() +"@localhost"  " 1547691506\r\n"
     ":localhost 353 " + server->map_clients[fd].getNickName() + " @ " + buffer[1] + " :" + server->map_clients[fd].getNickName() + " @"+ server->map_clients[fd].getNickName() + "\r\n"
     ":localhost 366 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :End of /NAMES list\r\n";
-    // add fd client to the channel
-    server->map_channels[buffer[1]]._fds.push_back(fd);
-    server->map_channels[buffer[1]]._members.push_back(fd);
     send(fd, rpl.c_str(), rpl.size(), 0);
     for (IteratorChannel it = server->map_channels.begin(); it != server->map_channels.end(); it++)
     {
@@ -160,7 +154,7 @@ int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int f
             for(size_t j = 0; j < it->second._fds.size(); j++)
             {
                 if (it->second._fds[j] != fd)
-                    send(it->second._fds[j], rpl.c_str(), rpl.size(), 0);   
+                    send(it->second._fds[j], rpl.c_str(), rpl.size(), 0);
             }
         }
     }
