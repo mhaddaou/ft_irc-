@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/27 18:14:10 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 18:51:53 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,19 +109,18 @@ int checkChannel(Server *server, std::string name)
     return (EXIT_SUCCESS);
 }
 
-void joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd)
+int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd)
 {
     Channel channel = server->map_channels[buffer[1]];
 
      // check if password is correct in case channel has one
     if (channel._pass == true)
     {
-        std::cout << "hehe\n";
         if (channel._password != buffer[2])
         {
             std::string rpl = "475 * " + channel._name + " :Cannot join channel (+k)\r\n";
             send(fd, rpl.c_str(), rpl.size(), 0);
-            return ;
+            return EXIT_FAILURE;
         }
     }
     // check if fd client is already joined the channel  
@@ -131,7 +130,7 @@ void joinToExistingChannel(Server *server, std::vector<std::string> buffer, int 
         {
             std::string rpl = "443 * " + server->map_clients[fd].getNickName() + " " + channel._name + " :is already on channel\r\n";
             send(fd, rpl.c_str(), rpl.size(), 0);
-            return ;
+            return (EXIT_FAILURE);
         }
     }
     // check if channel riched max size
@@ -139,7 +138,7 @@ void joinToExistingChannel(Server *server, std::vector<std::string> buffer, int 
     {
         std::string rpl = "471 * " + channel._name + " :Cannot join channel (+l)\r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
-        return ;
+        return (EXIT_FAILURE);
     }
     std::string rpl;
     rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n"
@@ -165,4 +164,5 @@ void joinToExistingChannel(Server *server, std::vector<std::string> buffer, int 
             }
         }
     }
+    return (EXIT_SUCCESS);
 }

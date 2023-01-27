@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 01:06:51 by smia              #+#    #+#             */
-/*   Updated: 2023/01/27 16:39:57 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 18:45:10 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,4 +38,4 @@ class Channel
 
 int createNewChannel(Server *server, std::vector<std::string> buffer, int fd);
 int checkChannel(Server *server, std::string name);
-void joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd);
+int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd);

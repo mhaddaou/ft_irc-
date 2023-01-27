@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 18:22:18 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 18:55:32 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,7 +188,6 @@ int connect (Server *server,std::string buffer, int fd, int i)
     if (server->map_clients[fd].verif == 2)
         user(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 3){
-        std::cout << "fd "<<fd << std::endl;
         if (server->map_clients[fd].isClient == true)
             rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server \r\n";
         else
@@ -206,7 +205,6 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
     std::string msg;
     if (cmd[1][0] == '#')
     {
-        std::cout << "hani" << std::endl;
         for (size_t i = 0; i < server->Channels.size(); i++)
         {
             if (server->Channels[i] == cmd[1]){
@@ -280,7 +278,6 @@ void part(Server *server,std::vector<std::string> cmd, int fd)
 
 void handleCmd(Server *server, std::string buffer, int fd)
 {
-    std::cout << buffer << std::endl;
     if (server->isClient(buffer) == EXIT_SUCCESS)
         server->map_clients[fd].isClient = true;
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
@@ -294,8 +291,15 @@ void handleCmd(Server *server, std::string buffer, int fd)
         whoIs(server, cmd, fd);
     if (cmd[0] == "NICK")
         Nick(server, cmd, fd);
-    if (cmd[0] == "JOIN")
-        join(server, buffer, fd);
+    if (cmd[0] == "JOIN"){
+        if (checkCmd(buffer) == EXIT_SUCCESS)
+        {
+            splitChannelsAndPasswd(server, buffer, fd);
+            return ;
+        }
+        else
+            join(server, buffer, fd);
+    }
     if (cmd[0] == "PART")
         part(server, cmd, fd);
 }

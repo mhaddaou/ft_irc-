@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 18:22:03 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 18:46:58 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,9 @@ void setNoticeMsg(Server *server, std::vector<std::string> cmd, int fd);
 void whoIs(Server *server, std::vector<std::string> cmd, int fd);
 void Nick( Server *server, std::vector<std::string> cmd, int fd);
 int checkInvalidChar(std::string nick);
-void join (Server *server, std::string buffer, int fd);
+int join (Server *server, std::string buffer, int fd);
 void join_as_member(int fd, Channel *channel, Client client);
 void join_as_operator(int fd, Channel *channel, Client client);
 int notEnoghtPrmt(Server *server, int len, int fd);
+int checkCmd(std::string cmd);
+void splitChannelsAndPasswd(Server *server, std::string  command, int fd);

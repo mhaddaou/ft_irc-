@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tools.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 18:19:56 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 19:14:20 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,6 @@ void whoIs(Server *server, std::vector<std::string> cmd, int fd){
                 ":localhost 319 "+ server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " :channel1 channel2 channel3\n"
                ":localhost 312 " + server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " localhost :Irc Server\n"
                 ":localhost 318 " + server->map_clients[fd].getNickName() + " " +it->second.getNickName() + " :End of /WHOIS list.";
-                // std::cout << rpl << "\n";
                 send(fd, rpl.c_str(), rpl.size(), 0);
                 return ;
             }
@@ -187,13 +186,51 @@ int notEnoghtPrmt(Server *server, std::vector<std::string> buffer, int fd){
         return (check);
 }
 
-void join(Server *server, std::string cmd, int fd)
+int checkCmd(std::string cmd){
+    if (cmd.find(",") != std::string::npos)
+        return(EXIT_SUCCESS);
+    return(EXIT_FAILURE);
+}
+void splitChannelsAndPasswd(Server *server, std::string  command, int fd)
+{
+    std::cout << command << std::endl;
+    command.erase(0, 5);
+    size_t len = 0;
+    std::string result;
+    size_t i = 1;
+    for(size_t j = 0; command[j] != ' '; j++){
+        if (command[j] == ',')
+            i++;
+    }
+    std::vector<std::string> cmd = server->splitCMD(command, ' ');
+    std::string channels = cmd[0];
+    std::string passwd = cmd[1];
+    std::vector<std::string> _cha = server->splitCMD(channels, ',');
+    std::vector<std::string> _pass = server->splitCMD(passwd, ',');
+    
+    if (_cha.size() < _pass.size())
+        std::cerr << "error: invalid arguments" << std::endl;
+    else{
+        while (len < i){
+            result = "JOIN " + _cha[len];
+            if (_pass.size() > len )
+                result += " " + _pass[len];
+            std::cout << result << std::endl;
+            if (join(server, result, fd) == EXIT_FAILURE)
+                return ;
+            len++;
+        }
+    }
+}
+
+int join(Server *server, std::string cmd, int fd)
 {
     std::vector<std::string> buffer = server->splitCMD(cmd, ' ');
     if (checkChannel(server, buffer[1]) == EXIT_SUCCESS)
-    {
         createNewChannel(server, buffer, fd);
+    else{
+        if (joinToExistingChannel(server, buffer, fd) == EXIT_FAILURE)
+            return EXIT_FAILURE;
     }
-    else
-        joinToExistingChannel(server, buffer, fd);
+    return (EXIT_SUCCESS);
 }
