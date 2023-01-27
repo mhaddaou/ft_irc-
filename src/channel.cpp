@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/27 17:09:36 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 18:14:10 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,14 @@ void Channel::kick_member(int fd, Server* server)
     // check if client is joined channel
     ;
     // if channel empty 
+    puts("1");
     if (this->_fds.size() == 1)
     {
         std::string rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
         return ;
     }
-    std::cout << "zabay\n";
+    puts("2");
     for (std::vector<int>::iterator it = this->_fds.begin(); it != this->_fds.end(); ++it)
     {
         if (*it == fd)
@@ -38,11 +39,13 @@ void Channel::kick_member(int fd, Server* server)
         if (*it == fd)
             this->_members.erase(it);
     }
+    puts("3");
     for (std::vector<int>::iterator it = this->_operators.begin(); it != this->_operators.end(); ++it)
     {
         if (*it == fd)
             this->_operators.erase(it);
     }
+    puts("4");
     std::string rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
     send(fd, rpl.c_str(), rpl.size(), 0);
     rpl.clear();
@@ -138,7 +141,6 @@ void joinToExistingChannel(Server *server, std::vector<std::string> buffer, int 
         send(fd, rpl.c_str(), rpl.size(), 0);
         return ;
     }
-    
     std::string rpl;
     rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n"
     ":localhost 332 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :This is my cool channel! https://irc.com\r\n"

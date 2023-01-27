@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 17:12:20 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/27 18:05:19 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -272,7 +272,10 @@ int Server::checkQuit(std::string str){
 
 void part(Server *server,std::vector<std::string> cmd, int fd)
 {
-    server->map_channels[cmd[1]].kick_member(fd, server);
+    if (server->map_channels.find(cmd[1]) != server->map_channels.end())
+        server->map_channels[cmd[1]].kick_member(fd, server);
+    else
+        ; // channel you tryin to PART doesn't exist 
 }
 
 void handleCmd(Server *server, std::string buffer, int fd)
