@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 19:14:20 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/27 19:28:19 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,9 +191,14 @@ int checkCmd(std::string cmd){
         return(EXIT_SUCCESS);
     return(EXIT_FAILURE);
 }
+// int checkNameChannels(std::vector<std::string> channels){
+    
+    
+// }
 void splitChannelsAndPasswd(Server *server, std::string  command, int fd)
 {
     std::cout << command << std::endl;
+    bool check = true;
     command.erase(0, 5);
     size_t len = 0;
     std::string result;
@@ -206,6 +211,9 @@ void splitChannelsAndPasswd(Server *server, std::string  command, int fd)
     std::string channels = cmd[0];
     std::string passwd = cmd[1];
     std::vector<std::string> _cha = server->splitCMD(channels, ',');
+    // if (checkNameChannels(_cha) == EXIT_FAILURE){
+    //     result = 
+    // }
     std::vector<std::string> _pass = server->splitCMD(passwd, ',');
     
     if (_cha.size() < _pass.size())
@@ -215,11 +223,19 @@ void splitChannelsAndPasswd(Server *server, std::string  command, int fd)
             result = "JOIN " + _cha[len];
             if (_pass.size() > len )
                 result += " " + _pass[len];
-            std::cout << result << std::endl;
+            if (_cha[len][0] != '#' && _cha[len][0] != '&'){
+                check = false;
+                break;
+            }
             if (join(server, result, fd) == EXIT_FAILURE)
                 return ;
             len++;
         }
+    }
+    if (check == false){
+        result = ":localhost 461 "+ server->map_clients[fd].getNickName() +": Not enough parameters \r\n";
+        send(fd, result.c_str(), result.size(), 0);
+        return ;
     }
 }
 
