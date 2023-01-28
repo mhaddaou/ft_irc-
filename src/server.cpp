@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 20:28:42 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/28 11:21:06 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,6 +261,7 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
     send(fd, rpl.c_str(), rpl.size(), 0);
     return (EXIT_FAILURE);
 }
+
 int Server::checkQuit(std::string str){
     std::vector<std::string> cmd = this->splitCMD(str, ' ');
     if (strcmp(cmd[0].c_str(), "QUIT") == 0)
@@ -268,13 +269,38 @@ int Server::checkQuit(std::string str){
     return (EXIT_FAILURE);
 }
 
-
 void part(Server *server,std::vector<std::string> cmd, int fd)
 {
-    if (server->map_channels.find(cmd[1]) != server->map_channels.end())
+    if (server->map_channels.find(cmd[1]) == server->map_channels.end())
+        return ; // channel you tryin to PART doesn't exist 
+    if (server->map_channels[cmd[1]].is_channel_client(fd))
         server->map_channels[cmd[1]].kick_member(fd, server);
     else
-        ; // channel you tryin to PART doesn't exist 
+        ;// fd is not joined to channel
+}
+
+void kick(Server* server, std::vector<std::string> cmd, int fd)
+{
+    if (server->map_channels.find(cmd[1]) == server->map_channels.end())
+        return ; // channel you tryin to PART doesn't exist 
+    Channel channel = server->map_channels[cmd[1]];
+    int fdkicked = -1;
+    if (!channel.is_admin(fd))
+        return ; // fd is not admin , can't kick any member
+    for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++)
+    {
+        if (it->second.getNickName() == cmd[2])
+            fdkicked = it->first;
+    }
+    if (fdkicked == -1)
+        return ; // nickname doesnt exist
+    else
+    {
+        if (channel.is_channel_client(fdkicked))
+            server->map_channels[cmd[1]].kick_member(fdkicked, server);
+        else
+            return ; // nickname is not membre in channel
+    }
 }
 
 void handleCmd(Server *server, std::string buffer, int fd)
@@ -292,7 +318,8 @@ void handleCmd(Server *server, std::string buffer, int fd)
         whoIs(server, cmd, fd);
     if (cmd[0] == "NICK")
         Nick(server, cmd, fd);
-    if (cmd[0] == "JOIN"){
+    if (cmd[0] == "JOIN")
+    {
         if (checkCmd(buffer) == EXIT_SUCCESS)
         {
             splitChannelsAndPasswd(server, buffer, fd);
@@ -303,6 +330,8 @@ void handleCmd(Server *server, std::string buffer, int fd)
     }
     if (cmd[0] == "PART")
         part(server, cmd, fd);
+    if (cmd[0] == "KICK")
+        kick(server, cmd, fd);
 }
 
 int Server::isClient(std::string str){

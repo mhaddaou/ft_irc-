@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/27 21:09:26 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/28 10:51:54 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,26 @@
 
 Channel::Channel(){}
 Channel::~Channel(){}
+
+bool Channel::is_channel_client(int fd)
+{
+    for (size_t i = 0; i < this->_fds.size(); i++)
+    {
+        if (this->_fds[i] == fd)
+            return true;
+    }
+    return false;
+}
+
+bool Channel::is_admin(int fd)
+{
+    for (size_t i = 0; i < this->_operators.size(); i++)
+    {
+        if (this->_operators[i] == fd)
+            return true;
+    }
+    return false;
+}
 
 void Channel::kick_member(int fd, Server* server)
 {
@@ -23,6 +43,7 @@ void Channel::kick_member(int fd, Server* server)
     {
         std::string rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
+        this->_fds.erase(this->_fds.begin());
         return ;
     }
     for (size_t i = 0; i < this->_fds.size(); ++i)
@@ -135,8 +156,7 @@ int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int f
         return (EXIT_FAILURE);
     }
     // add fd client to the channel
-    // server->map_channels[buffer[1]]._fds.push_back(fd);
-    // server->map_channels[buffer[1]]._members.push_back(fd);
+
     std::string rpl;
     rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n"
     ":localhost 332 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :This is my cool channel! https://irc.com\r\n"
