@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/28 11:21:06 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/28 13:49:54 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/server.hpp"
+#include "../includes/mode.hpp"
 
 Server::Server(char * port, char * passwd){
     this->_port = atoi(port);
@@ -305,6 +306,7 @@ void kick(Server* server, std::vector<std::string> cmd, int fd)
 
 void handleCmd(Server *server, std::string buffer, int fd)
 {
+    std::cout << buffer << std::endl;
     if (server->isClient(buffer) == EXIT_SUCCESS)
         server->map_clients[fd].isClient = true;
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
@@ -332,6 +334,8 @@ void handleCmd(Server *server, std::string buffer, int fd)
         part(server, cmd, fd);
     if (cmd[0] == "KICK")
         kick(server, cmd, fd);
+    if (cmd[0] == "MODE")
+        checkMode(server, cmd, fd);
 }
 
 int Server::isClient(std::string str){

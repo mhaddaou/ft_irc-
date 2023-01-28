@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 19:28:19 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/28 16:20:08 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,9 +82,9 @@ void whoIs(Server *server, std::vector<std::string> cmd, int fd){
                 std::stringstream ss;
                 ss << it->second.client_address.sin_addr.s_addr;
                 ss >> ip;
-                rpl = ":localhost 311 " + server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " " + it->second.getName() + " " + ip + " * : " + it->second.getRealName() + "\n"
-                ":localhost 319 "+ server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " :channel1 channel2 channel3\n"
-               ":localhost 312 " + server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " localhost :Irc Server\n"
+                rpl = ":localhost 311 " + server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " " + it->second.getName() + " " + ip + " * : " + it->second.getRealName() + "\r\n"
+                ":localhost 319 "+ server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " :" + getChannels(server, cmd[1]) +"\r\n"
+               ":localhost 312 " + server->map_clients[fd].getNickName() + " " + it->second.getNickName() + " localhost :Irc Server\r\n"
                 ":localhost 318 " + server->map_clients[fd].getNickName() + " " +it->second.getNickName() + " :End of /WHOIS list.";
                 send(fd, rpl.c_str(), rpl.size(), 0);
                 return ;
@@ -242,6 +242,7 @@ void splitChannelsAndPasswd(Server *server, std::string  command, int fd)
 int join(Server *server, std::string cmd, int fd)
 {
     std::vector<std::string> buffer = server->splitCMD(cmd, ' ');
+    std::cout << "size join " << buffer.size() << std::endl;
     if (checkChannel(server, buffer[1]) == EXIT_SUCCESS)
         createNewChannel(server, buffer, fd);
     else{

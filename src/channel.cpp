@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/28 10:51:54 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/28 17:17:49 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,23 @@ bool Channel::is_admin(int fd)
             return true;
     }
     return false;
+}
+std::string getChannels(Server *server, std::string nick){
+    std::string rpl;
+    int fd;
+    for(Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
+        if (it->second.getNickName() == nick)
+            fd = it->first;
+    }
+    std::cout << "size == " << server->map_clients[fd].Name_Channels.size() << std::endl;
+    if (server->map_clients[fd].Name_Channels.size() > 0){
+        for(size_t i = 0; i < server->map_clients[fd].Name_Channels.size(); i++){
+            rpl += server->map_clients[fd].Name_Channels[i] + " ";
+        }
+    }
+    else
+        rpl = "NO CHANNELS";
+    return rpl;
 }
 
 void Channel::kick_member(int fd, Server* server)
@@ -126,6 +143,7 @@ int checkChannel(Server *server, std::string name)
 
 int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd)
 {
+    std::cout << "name cha " << buffer[1] << std::endl;
     Channel channel = server->map_channels[buffer[1]];
 
      // check if password is correct in case channel has one
@@ -156,18 +174,20 @@ int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int f
         return (EXIT_FAILURE);
     }
     // add fd client to the channel
-
+    std::cout <<"ren " << std::endl;
     std::string rpl;
     rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n"
     ":localhost 332 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :This is my cool channel! https://irc.com\r\n"
     ":localhost 333 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " " + server->map_clients[fd].getNickName() +"!" +server->map_clients[fd].getChannel() +"@localhost"  " 1547691506\r\n"
     ":localhost 353 " + server->map_clients[fd].getNickName() + " @ " + buffer[1] + " :" + server->map_clients[fd].getNickName() + " @"+ server->map_clients[fd].getNickName() + "\r\n"
     ":localhost 366 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :End of /NAMES list\r\n";
+    std::cout << "rpl == "<< rpl ;
     send(fd, rpl.c_str(), rpl.size(), 0);
     for (IteratorChannel it = server->map_channels.begin(); it != server->map_channels.end(); it++)
     {
         if (it->second._name == buffer[1])
         {
+            server->map_clients[fd].Name_Channels.push_back(buffer[1]);
             it->second._fds.push_back(fd);
             it->second._members.push_back(fd);
             rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n";
