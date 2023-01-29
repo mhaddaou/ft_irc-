@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 01:06:51 by smia              #+#    #+#             */
-/*   Updated: 2023/01/29 18:16:49 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 22:06:55 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,3 +47,4 @@ int checkChannel(Server *server, std::string name);
 int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd);
 std::string getChannels(Server *server, std::string nick);
 int indexChennel(std::vector<std::string> channels, std::string name);
+int checkIfInvited(Server *server, std::vector<std::string> cmd, int fd);

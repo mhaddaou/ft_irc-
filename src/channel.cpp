@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/29 21:28:17 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 22:09:14 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,4 +236,11 @@ int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int f
         }
     }
     return (EXIT_SUCCESS);
+}
+int checkIfInvited(Server *server, std::vector<std::string> cmd, int fd){
+    for(size_t i = 0; i < server->map_clients[fd]._invite.size();i++){
+        if (server->map_clients[fd]._invite[i] == cmd[1])
+            return (EXIT_SUCCESS);   
+    }
+    return (EXIT_FAILURE);
 }

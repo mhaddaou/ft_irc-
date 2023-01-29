@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/28 13:47:47 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/29 21:46:19 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 22:06:05 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,6 +192,8 @@ int checkModesChannel(Server *server, std::vector<std::string> cmd, int fd){
             modes += 's';
     }
     if (modes.size() != 1){
+        if (checkIfInvited(server, cmd, fd) == EXIT_SUCCESS)
+            return (EXIT_SUCCESS);
         rpl = ":localhost 473 " + cmd[1] + " :Cannot join channel (" + modes + ")\r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
         return (EXIT_FAILURE);

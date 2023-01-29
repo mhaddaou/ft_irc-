@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/29 20:58:41 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 22:28:22 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,7 +274,32 @@ int join(Server *server, std::string cmd, int fd)
     return (EXIT_SUCCESS);
 }
 void invcmd(Server *server, std::vector<std::string> cmd, int fd){
-    (void)fd;
-    (void)server;
-    std::cout << cmd.size() << std::endl;
+    std::string rpl;
+    int fdtarget = -1;
+    std::cout << "size == " << cmd.size() << std::endl;
+    if (cmd.size() == 3){
+        for (Iterator it = server->map_clients.begin(); it !=  server->map_clients.end(); it++){
+            if (it->second.getNickName() == cmd[1]){
+                fdtarget = it->first;
+                it->second._invite.push_back(cmd[2]);
+                break;
+            }
+        }
+        if (fdtarget == -1)
+            rpl = ":localhost 401 " + cmd[1] + " : No such nick/channel\r\n";
+        else if (checkChannel(server, cmd[2]) == EXIT_SUCCESS)
+            rpl = ":localhost 401 " + cmd[1] + " : No such nick/channel\r\n";
+        // :sender!user@host INVITE client #channel
+        else{
+            rpl = ":" +server->map_clients[fd].getNickName() + " INVITE " + cmd[1] + " " + cmd[2] + "\r\n";
+            send(fdtarget, rpl.c_str(), rpl.size(), 0);
+            return ;
+        }
+        send(fd, rpl.c_str(), rpl.size(), 0);
+    }
+    else{
+        rpl = ":localhost 461 "+ server->map_clients[fd].getNickName() +": Not enough parameters \r\n";
+        send(fdtarget, rpl.c_str(), rpl.size(), 0);  
+    }
+    
 }
