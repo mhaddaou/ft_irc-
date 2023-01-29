@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 18:46:58 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 20:57:24 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,3 +95,6 @@ void join_as_operator(int fd, Channel *channel, Client client);
 int notEnoghtPrmt(Server *server, int len, int fd);
 int checkCmd(std::string cmd);
 void splitChannelsAndPasswd(Server *server, std::string  command, int fd);
+void kick(Server* server, std::string buffer, int fd, char c);
+int checkIsBan(Server *server, std::vector<std::string> cmd, int fd);
+void invcmd(Server *server, std::vector<std::string> cmd, int fd);

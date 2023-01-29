@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 01:06:51 by smia              #+#    #+#             */
-/*   Updated: 2023/01/28 16:04:35 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 18:16:49 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +25,18 @@ class Channel
         std::string _name;
         bool _pass;
         int _limit;
+        bool _isInvisible;
+        bool _secret;
         std::string _password;
         Channel();
         ~Channel();
         
         std::vector<int> _fds;
+        std::vector<char> _modes;
         std::vector<int> _members;
         std::vector<int> _operators;
-        void kick_member(int fd, Server* server);
+        std::vector<unsigned int> _bans;
+        void kick_member(int fd, Server* server, char c);
         bool is_channel_client(int fd);
         bool is_admin(int fd);
         
@@ -42,3 +46,4 @@ int createNewChannel(Server *server, std::vector<std::string> buffer, int fd);
 int checkChannel(Server *server, std::string name);
 int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd);
 std::string getChannels(Server *server, std::string nick);
+int indexChennel(std::vector<std::string> channels, std::string name);

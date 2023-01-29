@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/28 13:49:54 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 20:56:47 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,6 +201,8 @@ int connect (Server *server,std::string buffer, int fd, int i)
     return (EXIT_SUCCESS); 
 }
 
+
+
 int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
     int fdTarget;
     std::string rpl;
@@ -211,6 +213,8 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
         {
             if (server->Channels[i] == cmd[1]){
                 
+                if (!server->map_channels[cmd[1]].is_channel_client(fd))
+                    return 1;
                 for (IteratorChannel it = server->map_channels.begin(); it != server->map_channels.end(); it++)
                 {
                     if (it->second._name == cmd[1])
@@ -275,13 +279,14 @@ void part(Server *server,std::vector<std::string> cmd, int fd)
     if (server->map_channels.find(cmd[1]) == server->map_channels.end())
         return ; // channel you tryin to PART doesn't exist 
     if (server->map_channels[cmd[1]].is_channel_client(fd))
-        server->map_channels[cmd[1]].kick_member(fd, server);
+        server->map_channels[cmd[1]].kick_member(fd, server, 'k');
     else
         ;// fd is not joined to channel
 }
 
-void kick(Server* server, std::vector<std::string> cmd, int fd)
+void kick(Server* server, std::string buffer, int fd, char c)
 {
+    std::vector<std::string>cmd = server->splitCMD(buffer, ' ');
     if (server->map_channels.find(cmd[1]) == server->map_channels.end())
         return ; // channel you tryin to PART doesn't exist 
     Channel channel = server->map_channels[cmd[1]];
@@ -298,7 +303,7 @@ void kick(Server* server, std::vector<std::string> cmd, int fd)
     else
     {
         if (channel.is_channel_client(fdkicked))
-            server->map_channels[cmd[1]].kick_member(fdkicked, server);
+            server->map_channels[cmd[1]].kick_member(fdkicked, server, c);
         else
             return ; // nickname is not membre in channel
     }
@@ -333,9 +338,11 @@ void handleCmd(Server *server, std::string buffer, int fd)
     if (cmd[0] == "PART")
         part(server, cmd, fd);
     if (cmd[0] == "KICK")
-        kick(server, cmd, fd);
+        kick(server, buffer, fd, 'k');
     if (cmd[0] == "MODE")
         checkMode(server, cmd, fd);
+    if (cmd[0] == "INVITE")
+        invcmd(server, cmd, fd);
 }
 
 int Server::isClient(std::string str){

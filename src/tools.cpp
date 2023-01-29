@@ -6,13 +6,14 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/28 16:20:08 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 20:58:41 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/channel.hpp"
 #include "../includes/client.hpp"
 #include "../includes/server.hpp"
+#include "../includes/mode.hpp"
 #include <stdlib.h>
 
 
@@ -238,16 +239,42 @@ void splitChannelsAndPasswd(Server *server, std::string  command, int fd)
         return ;
     }
 }
+int checkIsBan(Server *server, std::vector<std::string> cmd, int fd){
+    unsigned int ip = server->map_clients[fd]._ip;
+    std::vector<unsigned int> vec = server->map_channels[cmd[1]]._bans;
+    for(size_t i = 0; i < vec.size(); i++)
+    {
+        if (vec[i] == ip)
+            return EXIT_FAILURE;
+        
+    }
+    return (EXIT_SUCCESS);
+    
+    
+}
 
 int join(Server *server, std::string cmd, int fd)
 {
     std::vector<std::string> buffer = server->splitCMD(cmd, ' ');
-    std::cout << "size join " << buffer.size() << std::endl;
+
     if (checkChannel(server, buffer[1]) == EXIT_SUCCESS)
         createNewChannel(server, buffer, fd);
     else{
+        if (checkIsBan(server, buffer, fd) == EXIT_FAILURE){
+            // :server.name 474 #channel username :Cannot join channel (+b)
+            std::string rpl = ":localhost 474 " + buffer[1] + " " + server->map_clients[fd].getNickName() + ":Cannot join channel (+b)\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            return (EXIT_FAILURE);
+        }
+        if (checkModesChannel(server, buffer, fd) == EXIT_FAILURE)
+            return (EXIT_FAILURE);
         if (joinToExistingChannel(server, buffer, fd) == EXIT_FAILURE)
             return EXIT_FAILURE;
     }
     return (EXIT_SUCCESS);
+}
+void invcmd(Server *server, std::vector<std::string> cmd, int fd){
+    (void)fd;
+    (void)server;
+    std::cout << cmd.size() << std::endl;
 }

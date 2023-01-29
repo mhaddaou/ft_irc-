@@ -6,13 +6,13 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/28 17:17:49 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 21:28:17 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/channel.hpp"
 
-Channel::Channel(){}
+Channel::Channel():_isInvisible(false), _secret(false){}
 Channel::~Channel(){}
 
 bool Channel::is_channel_client(int fd)
@@ -41,7 +41,6 @@ std::string getChannels(Server *server, std::string nick){
         if (it->second.getNickName() == nick)
             fd = it->first;
     }
-    std::cout << "size == " << server->map_clients[fd].Name_Channels.size() << std::endl;
     if (server->map_clients[fd].Name_Channels.size() > 0){
         for(size_t i = 0; i < server->map_clients[fd].Name_Channels.size(); i++){
             rpl += server->map_clients[fd].Name_Channels[i] + " ";
@@ -52,22 +51,20 @@ std::string getChannels(Server *server, std::string nick){
     return rpl;
 }
 
-void Channel::kick_member(int fd, Server* server)
+void Channel::kick_member(int fd, Server* server, char c)
 {
     Client client = server->map_clients[fd];
+    std::string rpl;
     // if channel empty 
-    if (this->_fds.size() == 1)
-    {
-        std::string rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
-        send(fd, rpl.c_str(), rpl.size(), 0);
-        this->_fds.erase(this->_fds.begin());
-        return ;
-    }
+
+    std::cout << this->_fds.size() << std::endl;
     for (size_t i = 0; i < this->_fds.size(); ++i)
     {
-        if (this->_fds[i] == fd)
+        if (this->_fds[i] == fd){
             this->_fds.erase(this->_fds.begin() + i);
+        }
     }
+
     for (size_t i = 0; i < this->_members.size(); ++i)
     {
         if (this->_members[i] == fd)
@@ -78,17 +75,58 @@ void Channel::kick_member(int fd, Server* server)
         if (this->_operators[i] == fd)
             this->_operators.erase(this->_operators.begin() + i);
     }
-    std::string rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
-    send(fd, rpl.c_str(), rpl.size(), 0);
-    rpl.clear();
-    rpl = client.client_info() + " PART " + this->_name + "\r\n";
-    // send to all memebres that one client PART
-    for (size_t i = 0; i < this->_fds.size(); ++i)
-    {
-        send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
+    int i = indexChennel(server->map_clients[fd].Name_Channels, this->_name);
+        server->map_clients[fd].Name_Channels.erase(server->map_clients[fd].Name_Channels.begin() + i);
+
+    if (c == 'k'){
+        
+        rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        rpl.clear();
+        rpl = client.client_info() + " PART " + this->_name + "\r\n";
+        // send to all memebres that one client PART
+        for (size_t i = 0; i < this->_fds.size(); ++i)
+        {
+            send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
+        }
+    }
+
+
+    // else if (c == 'p'){
+    //     rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
+    //     send(fd, rpl.c_str(), rpl.size(), 0);
+    //     rpl.clear();
+    //     rpl = client.client_info() + " PART " + this->_name + "\r\n";
+    //     // send to all memebres that one client PART
+    //     for (size_t i = 0; i < this->_fds.size(); ++i)
+    //     {
+    //         send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
+    //     }
+    // }
+    else if (c == 'b'){
+        
+        std::cout << "bannnning" << std::endl;
+        // :irc.example.com MODE #channel +b user!~username@hostname
+        // rpl = ":localhost MODE " + this->_name + 
+        // :irc.example.com PRIVMSG #channel :user!~username@hostname has been banned from this channel.
+        // :irc.example.com KICK #channel user :reason
+        rpl = ":localhost MODE " +this->_name + " +b " + client.client_info() + ":has been banned from this channel.\r\n";
+        // "367 * " + _channel + " " + it->first)
+        for (size_t i = 0; i < this->_fds.size(); ++i)
+        {
+            send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
+        }
     }
 }
-
+int indexChennel(std::vector<std::string> channels, std::string name)
+{
+    for (size_t i = 0; i < channels.size(); i++)
+    {
+        if (channels[i] == name)
+            return i;
+    }
+    return -1;
+}
 int checkIfThereIsPass(std::vector<std::string> buffer)
 {
     if (buffer.size() > 2)
@@ -126,11 +164,11 @@ int createNewChannel(Server *server, std::vector<std::string> buffer, int fd)
     //send to the client that the channel is created
     rpl = ":" +server->map_clients[fd].client_info() + " JOIN " + buffer[1] + "\r\n"
         + ":loclahost" + " MODE " + buffer[1] + " +nt\r\n"
-        + ":localhost" + " 353 " + server->map_clients[fd].getNickName() + " = " + buffer[1] + " :" + server->map_clients[fd].getNickName() + "\r\n"
+        + ":localhost" + " 353 " + server->map_clients[fd].getNickName() + " = " + buffer[1] + " :@" + server->map_clients[fd].getNickName() + "\r\n"
         + ":localhost" + " 366 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :End of /NAMES list\r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
     return (EXIT_SUCCESS);
-}
+}   
 
 int checkChannel(Server *server, std::string name)
 {
@@ -174,7 +212,6 @@ int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int f
         return (EXIT_FAILURE);
     }
     // add fd client to the channel
-    std::cout <<"ren " << std::endl;
     std::string rpl;
     rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n"
     ":localhost 332 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :This is my cool channel! https://irc.com\r\n"
