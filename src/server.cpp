@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/29 20:56:47 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 00:41:09 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,9 @@ int connect (Server *server,std::string buffer, int fd, int i)
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
     std::vector<std::string> cmd = server->splitCMD(buffer, ' ');
     checkIsRoot(server, server->map_clients[server->fds[i]].buffer, server->fds[i]);
+    if (cmd.size()  ==  8){
+        get
+    }
     if (server->map_clients[fd].verif == 0)
         passwd(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 1)
