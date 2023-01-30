@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/29 23:53:23 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 17:07:01 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,13 @@ int main(int ac, char **av) {
                         std::cout << "error to read " << std::endl;
                     else
                     {
+                        std::vector<std::string> cmd = server.splitCMD(server.map_clients[server.fds[i]].buffer, ' ');
+                        if (cmd[0] == "PONG"){
+                            std::string rpl = "PONG :localhost";
+                            send(server.fds[i], rpl.c_str(), rpl.size(), 0);
+                        }
                         if (server.map_clients[server.fds[i]].is_verified == false){
-                            std::cout << server.map_clients[server.fds[i]].buffer << std::endl;
+                            
                             connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i], i);
                         }
                         else{

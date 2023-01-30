@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/29 20:23:25 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 20:56:13 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,8 @@ int passwd(Server *server, std::vector<std::string> cmd,  int fd, int i)
         //check if password
         if (cmd.size() == 2)
         {
+            if (cmd[1][0] == ':')
+                cmd[1].erase(0, 1);
             if (server->getPass() == server->encrypt(cmd[1]))
                 std::cout << "PASS OK" << std::endl;
             else{
@@ -173,39 +175,54 @@ std::string Server::decrypt(std::string password){
     }
     return password;
 }
-void getCmd(Server *server, std::vector<std::string> cmd , int fd, int i){
+// void setCmd(Server *server, std::vector<std::string> args, int fd, int i){
+//     if (args[0] == "PASS")
+//         passwd(server, args, fd, i);
+//     if (args[0] == "NICK")
+//         nick(server, args, fd, i);
+//     if (args[0] == "USER")
+//         user(server, args, fd, i);
+// }
+void getCmd(Server *server, std::string buffer , int fd, int i){
     std::string msg;
+    std::vector<std::string> cmd = server->splitCMD(buffer, '\n');
     std::vector<std::string> args;
-    for(size_t i = 0; i < cmd.size(); i++){
-        if (cmd[i] == "PASS"){
-            if (cmd[i + 1][0] ==':')
-                cmd[i + 1].erase(0, 1);
-            msg = "PASS " + cmd[i + 1];
-            args = server->splitCMD(msg, ' ');
+    for(size_t j = 0; j < cmd.size(); j++)
+        cmd[j].erase(std::remove(cmd[j].begin(), cmd[j].end(), '\r'), cmd[j].cend());
+    for(size_t t = 0; t < cmd.size(); t++){
+        args = server->splitCMD(cmd[t], ' ');
+        if (args[0] == "PASS"){
+            if (args[1][0] == ':')
+                args[1].erase(0 , 1);
+            std::cout <<"pass == " <<  args[1] << std::endl;
             passwd(server, args, fd, i);
         }
-        if (cmd[i] == "NICK"){
-            msg = "NICK " + cmd[i + 1];
-            args = server->splitCMD(msg, ' ');
+        if (args[0] == "NICK")
             nick(server, args, fd, i);
-        }
-        if (cmd[i] == "USER"){
-            
-        }
+        if (args[0] == "USER")
+            user(server, args, fd, i);
+        // setCmd(server, args, fd, i);
     }
+}
+
+int checkBuffer(Server *server, std::string  buffer){
+    std::vector<std::string> cmd = server->splitCMD(buffer, '\n');
+    return (cmd.size());
 }
     
 int connect (Server *server,std::string buffer, int fd, int i)
 {
     std::string rpl;
+    std::string all = buffer;
     if (server->isClient(buffer) == EXIT_SUCCESS)
         server->map_clients[fd].isClient = true;
+    int count = checkBuffer(server, buffer);      
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
     std::vector<std::string> cmd = server->splitCMD(buffer, ' ');
+    if (count > 1)
+        getCmd(server, all, fd, i);
     checkIsRoot(server, server->map_clients[server->fds[i]].buffer, server->fds[i]);
-    if (cmd.size()  ==  8){
-        getCmd(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 0)
         passwd(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 1)
@@ -213,11 +230,24 @@ int connect (Server *server,std::string buffer, int fd, int i)
     if (server->map_clients[fd].verif == 2)
         user(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 3){
-        if (server->map_clients[fd].isClient == true)
-            rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server \r\n";
-        else
+        if (server->map_clients[fd].isClient == true){
+            std::cout << "hna1" << std::endl;
+            // rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server " + server->map_clients[fd].getNickName() +"!user@host\r\n";
+            rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the internet relay chat\r\n"
+					":localhost 002 " + server->map_clients[fd].getNickName() + " :Your host is localhost, running version 1.0\r\n"
+					":localhost 003 " + server->map_clients[fd].getNickName() + " :This server was created 09/01/2023\r\n"
+					":localhost 004 " + server->map_clients[fd].getNickName() + " localhost 1.0 - -\r\n"
+					":localhost 372 " + server->map_clients[fd].getNickName() + " 🔨 welcome to localhost 🔨\r\n"
+					":localhost 376 " + server->map_clients[fd].getNickName() + " :End of /MOTD command\r\n";
+            // :<server name> 001 <nickname> :Welcome to the Internet Relay Network <nickname>!user@host
+        }
+        else{
             rpl = "welcome to the server\n";
+            std::cout << "hna2" << std::endl; 
+        }
         send(fd, rpl.c_str(), rpl.size(), 0);
+        // rpl = "004 localhost 1.0 iwx ntl\r\n";
+        // send(fd, rpl.c_str(), rpl.size(), 0);
         server->map_clients[server->fds[i]].is_verified = true;
         std::cout <<"• " << server->map_clients[fd].getNickName() << " is connected" << std::endl;
     }
@@ -226,10 +256,32 @@ int connect (Server *server,std::string buffer, int fd, int i)
 
 
 
-int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd){
-    int fdTarget;
+int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string line){
+    int fdTarget = -1;
     std::string rpl;
     std::string msg;
+    // PRIVMSG mhaddaou :DCC SEND "resource.txt" 168493577 52094 197
+    // PRIVMSG <username> :\x01DCC SEND "<file_name>" <IP address> <port> <file_size>\x01
+
+    if (cmd.size() == 8){
+        std::cout << "i'am here" << std::endl;
+        // : DCC SEND "resource.txt" 168493577 53129 197
+        for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
+        {
+        if (it->second.getNickName() == cmd[1]){
+            fdTarget = it->first;
+            std::cout << "his name " << it->second.getNickName() << std::endl;
+            break;
+        }
+        // PRIVMSG smia :DCC SEND "resource.txt" 168493577 53344 197
+        // PRIVMSG smia :DCC SEND "resource.txt" 168493577 53325 197
+        // ms :psychom!Adium@10.11.2.9 PRIVMSG smia: DCC SEND "resource.txt" 168493577 53298 197 ki ratsaft
+        }
+        rpl = ":"+ server->map_clients[fd].getNickName() + " "+ line;
+        send(fdTarget, rpl.c_str(), rpl.size(), 0);
+        return (EXIT_SUCCESS);
+        
+    }
     if (cmd[1][0] == '#')
     {
         for (size_t i = 0; i < server->Channels.size(); i++)
@@ -334,14 +386,14 @@ void kick(Server* server, std::string buffer, int fd, char c)
 
 void handleCmd(Server *server, std::string buffer, int fd)
 {
-    std::cout << buffer << std::endl;
+    std::string line = buffer;
     if (server->isClient(buffer) == EXIT_SUCCESS)
         server->map_clients[fd].isClient = true;
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
     std::vector<std::string> cmd = server->splitCMD(buffer, ' ');
     if (cmd[0] == "PRIVMSG")
-        setPrvMsg(server, cmd, fd);
+        setPrvMsg(server, cmd, fd, line);
     if (cmd[0] == "NOTICE")
         setNoticeMsg(server, cmd, fd);
     if (cmd[0] == "WHOIS")

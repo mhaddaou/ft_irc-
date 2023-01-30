@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/29 22:28:22 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 20:43:49 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ void desconectedClient(Server *server, int fd, int i){
 }
 std::string handlemsg(std::vector<std::string> msg){
     std::string ret;
+    if (msg[2][0] == ':')
+        msg[2].erase(0, 1);
     for (size_t i = 2; i < msg.size(); i++){
         ret += msg[i];
         if (i != msg.size() - 1)

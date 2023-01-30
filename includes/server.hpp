@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/29 20:57:24 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 19:20:29 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ int nick(Server *server, std::vector<std::string> cmd, int fd, int i);
 void user(Server *server, std::vector<std::string> cmd, int fd);
 int passwd(Server *server, std::vector<std::string> cmd, int fd, int i);
 void handleCmd(Server *server, std::string buffer, int fd);
-int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd);
+int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string line);
 void desconectedClient(Server *server, int fd, int i);
 std::string handlemsg(std::vector<std::string> msg);
 int checkIsRoot(Server *server, std::string buffer, int fd); 
@@ -98,3 +98,6 @@ void splitChannelsAndPasswd(Server *server, std::string  command, int fd);
 void kick(Server* server, std::string buffer, int fd, char c);
 int checkIsBan(Server *server, std::vector<std::string> cmd, int fd);
 void invcmd(Server *server, std::vector<std::string> cmd, int fd);
+int checkBuffer(Server *server, std::string  buffer);
+void getCmd(Server *server, std::string cmd , int fd, int i);
+// void setCmd(Server *server, std::vector<std::string> args, int fd, int i);
