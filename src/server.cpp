@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mhaddaou < mhaddaou@student.1337.ma>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/30 00:41:09 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/29 20:23:25 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,27 @@ std::string Server::decrypt(std::string password){
     }
     return password;
 }
+void getCmd(Server *server, std::vector<std::string> cmd , int fd, int i){
+    std::string msg;
+    std::vector<std::string> args;
+    for(size_t i = 0; i < cmd.size(); i++){
+        if (cmd[i] == "PASS"){
+            if (cmd[i + 1][0] ==':')
+                cmd[i + 1].erase(0, 1);
+            msg = "PASS " + cmd[i + 1];
+            args = server->splitCMD(msg, ' ');
+            passwd(server, args, fd, i);
+        }
+        if (cmd[i] == "NICK"){
+            msg = "NICK " + cmd[i + 1];
+            args = server->splitCMD(msg, ' ');
+            nick(server, args, fd, i);
+        }
+        if (cmd[i] == "USER"){
+            
+        }
+    }
+}
     
 int connect (Server *server,std::string buffer, int fd, int i)
 {
@@ -184,8 +205,7 @@ int connect (Server *server,std::string buffer, int fd, int i)
     std::vector<std::string> cmd = server->splitCMD(buffer, ' ');
     checkIsRoot(server, server->map_clients[server->fds[i]].buffer, server->fds[i]);
     if (cmd.size()  ==  8){
-        get
-    }
+        getCmd(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 0)
         passwd(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 1)
