@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/30 20:56:13 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 21:25:05 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -349,39 +349,85 @@ int Server::checkQuit(std::string str){
     return (EXIT_FAILURE);
 }
 
-void part(Server *server,std::vector<std::string> cmd, int fd)
+void part(Server *server, std::string buffer, int fd)
 {
-    if (server->map_channels.find(cmd[1]) == server->map_channels.end())
-        return ; // channel you tryin to PART doesn't exist 
-    if (server->map_channels[cmd[1]].is_channel_client(fd))
-        server->map_channels[cmd[1]].kick_member(fd, server, 'k');
-    else
-        ;// fd is not joined to channel
+    std::vector<std::string>cmd = server->splitCMD(buffer, ' ');
+    std::vector<std::string>channels = server->splitCMD(cmd[1], ',');
+    std::string rpl;
+    
+    for (size_t i = 0; i < channels.size(); i++)
+    {
+        if (server->map_channels.find(channels[i]) == server->map_channels.end())
+        {
+            rpl = ":localhost 401 " + channels[i] + " : No such nick/channel\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            return ;
+        }
+        if (server->map_channels[channels[i]].is_channel_client(fd))
+            server->map_channels[channels[i]].kick_member(fd, server, 'k');
+        else
+        {
+            rpl = ":localhost 441 " + cmd[2]  + " :isn't on that channel\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            return  ;
+        }
+    }
 }
 
 void kick(Server* server, std::string buffer, int fd, char c)
 {
     std::vector<std::string>cmd = server->splitCMD(buffer, ' ');
+    std::string rpl;
     if (server->map_channels.find(cmd[1]) == server->map_channels.end())
-        return ; // channel you tryin to PART doesn't exist 
+    {
+        rpl = ":localhost 401 " + cmd[1] + " : No such nick/channel\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        return ;
+    }
     Channel channel = server->map_channels[cmd[1]];
     int fdkicked = -1;
     if (!channel.is_admin(fd))
-        return ; // fd is not admin , can't kick any member
+    {
+        rpl = ":localhost 482 " + server->map_clients[fd].getNickName() + ":You're not channel operator\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        return ;
+    }
     for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++)
     {
         if (it->second.getNickName() == cmd[2])
             fdkicked = it->first;
     }
     if (fdkicked == -1)
-        return ; // nickname doesnt exist
+    {
+        rpl = ":localhost 401 " + cmd[2] + " : No such nick/channel\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        return ;
+    }
     else
     {
         if (channel.is_channel_client(fdkicked))
             server->map_channels[cmd[1]].kick_member(fdkicked, server, c);
         else
-            return ; // nickname is not membre in channel
+        {
+            rpl = ":localhost 441 " + cmd[2]  + " :isn't on that channel\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            return  ;
+        }
     }
+}
+
+void listChannels(Server* server, int fd)
+{
+    std::string channels = "";
+    for (IteratorChannel it = server->map_channels.begin(); it != server->map_channels.end(); ++it)
+    {
+        if (!it->second._isInvisible && !it->second._secret)
+            channels += it->first + " ";
+    }
+    std::string rpl;
+    rpl = ":localhost 322" + channels + ".\r\n";
+    send(fd, rpl.c_str(), rpl.size(), 0);
+    return ;
 }
 
 void handleCmd(Server *server, std::string buffer, int fd)
@@ -411,7 +457,7 @@ void handleCmd(Server *server, std::string buffer, int fd)
             join(server, buffer, fd);
     }
     if (cmd[0] == "PART")
-        part(server, cmd, fd);
+        part(server, buffer, fd);
     if (cmd[0] == "KICK")
         kick(server, buffer, fd, 'k');
     if (cmd[0] == "MODE")

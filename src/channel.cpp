@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/29 22:09:14 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 21:23:29 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,8 @@ int createNewChannel(Server *server, std::vector<std::string> buffer, int fd)
         server->map_clients[fd].id_channels.push_back(server->_id_channel);
         server->map_clients[fd].Name_Channels.push_back(buffer[1]);
     }
+    Ch._secret = false;
+    Ch._isInvisible = false;
     server->map_channels.insert(std::make_pair(buffer[1] , Ch));
     server->Channels.push_back(Ch._name);
     server->_id_channel++;
