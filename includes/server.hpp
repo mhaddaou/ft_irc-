@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/30 19:20:29 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 21:29:00 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <unistd.h>
 # include <vector>
 # include <sstream>
+#include <ctime>
 # include "../includes/client.hpp"
 # define MAX_CLIENT (10)
 # define BUF_SIZE (1024)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/30 17:07:01 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 21:32:23 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ int main(int ac, char **av) {
                         else{
                             std::cout << server.map_clients[server.fds[i]].buffer << std::endl;
                             handleCmd(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
-                            
                         }
                     }
                 }
