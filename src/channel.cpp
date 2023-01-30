@@ -3,59 +3,130 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/27 18:51:53 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 21:23:29 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/channel.hpp"
 
-Channel::Channel(){}
+Channel::Channel():_isInvisible(false), _secret(false){}
 Channel::~Channel(){}
 
-void Channel::kick_member(int fd, Server* server)
+bool Channel::is_channel_client(int fd)
 {
-    Client client = server->map_clients[fd];
-    // check if client is joined channel
-    ;
-    // if channel empty 
-    puts("1");
-    if (this->_fds.size() == 1)
+    for (size_t i = 0; i < this->_fds.size(); i++)
     {
-        std::string rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
-        send(fd, rpl.c_str(), rpl.size(), 0);
-        return ;
+        if (this->_fds[i] == fd)
+            return true;
     }
-    puts("2");
-    for (std::vector<int>::iterator it = this->_fds.begin(); it != this->_fds.end(); ++it)
-    {
-        if (*it == fd)
-            this->_fds.erase(it);
-    }
-    for (std::vector<int>::iterator it = this->_members.begin(); it != this->_members.end(); ++it)
-    {
-        if (*it == fd)
-            this->_members.erase(it);
-    }
-    puts("3");
-    for (std::vector<int>::iterator it = this->_operators.begin(); it != this->_operators.end(); ++it)
-    {
-        if (*it == fd)
-            this->_operators.erase(it);
-    }
-    puts("4");
-    std::string rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
-    send(fd, rpl.c_str(), rpl.size(), 0);
-    rpl.clear();
-    rpl = client.client_info() + " PART " + this->_name + "\r\n";
-    for (std::vector<int>::iterator it = this->_fds.begin(); it != this->_fds.end(); ++it)
-    {
-        send(*it, rpl.c_str(), rpl.size(), 0);
-    }
+    return false;
 }
 
+bool Channel::is_admin(int fd)
+{
+    for (size_t i = 0; i < this->_operators.size(); i++)
+    {
+        if (this->_operators[i] == fd)
+            return true;
+    }
+    return false;
+}
+std::string getChannels(Server *server, std::string nick){
+    std::string rpl;
+    int fd;
+    for(Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
+        if (it->second.getNickName() == nick)
+            fd = it->first;
+    }
+    if (server->map_clients[fd].Name_Channels.size() > 0){
+        for(size_t i = 0; i < server->map_clients[fd].Name_Channels.size(); i++){
+            rpl += server->map_clients[fd].Name_Channels[i] + " ";
+        }
+    }
+    else
+        rpl = "NO CHANNELS";
+    return rpl;
+}
+
+void Channel::kick_member(int fd, Server* server, char c)
+{
+    Client client = server->map_clients[fd];
+    std::string rpl;
+    // if channel empty 
+
+    std::cout << this->_fds.size() << std::endl;
+    for (size_t i = 0; i < this->_fds.size(); ++i)
+    {
+        if (this->_fds[i] == fd){
+            this->_fds.erase(this->_fds.begin() + i);
+        }
+    }
+
+    for (size_t i = 0; i < this->_members.size(); ++i)
+    {
+        if (this->_members[i] == fd)
+            this->_members.erase(this->_members.begin() + i);
+    }
+    for (size_t i = 0; i < this->_operators.size(); ++i)
+    {
+        if (this->_operators[i] == fd)
+            this->_operators.erase(this->_operators.begin() + i);
+    }
+    int i = indexChennel(server->map_clients[fd].Name_Channels, this->_name);
+        server->map_clients[fd].Name_Channels.erase(server->map_clients[fd].Name_Channels.begin() + i);
+
+    if (c == 'k'){
+        
+        rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        rpl.clear();
+        rpl = client.client_info() + " PART " + this->_name + "\r\n";
+        // send to all memebres that one client PART
+        for (size_t i = 0; i < this->_fds.size(); ++i)
+        {
+            send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
+        }
+    }
+
+
+    // else if (c == 'p'){
+    //     rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
+    //     send(fd, rpl.c_str(), rpl.size(), 0);
+    //     rpl.clear();
+    //     rpl = client.client_info() + " PART " + this->_name + "\r\n";
+    //     // send to all memebres that one client PART
+    //     for (size_t i = 0; i < this->_fds.size(); ++i)
+    //     {
+    //         send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
+    //     }
+    // }
+    else if (c == 'b'){
+        
+        std::cout << "bannnning" << std::endl;
+        // :irc.example.com MODE #channel +b user!~username@hostname
+        // rpl = ":localhost MODE " + this->_name + 
+        // :irc.example.com PRIVMSG #channel :user!~username@hostname has been banned from this channel.
+        // :irc.example.com KICK #channel user :reason
+        rpl = ":localhost MODE " +this->_name + " +b " + client.client_info() + ":has been banned from this channel.\r\n";
+        // "367 * " + _channel + " " + it->first)
+        for (size_t i = 0; i < this->_fds.size(); ++i)
+        {
+            send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
+        }
+    }
+}
+int indexChennel(std::vector<std::string> channels, std::string name)
+{
+    for (size_t i = 0; i < channels.size(); i++)
+    {
+        if (channels[i] == name)
+            return i;
+    }
+    return -1;
+}
 int checkIfThereIsPass(std::vector<std::string> buffer)
 {
     if (buffer.size() > 2)
@@ -87,18 +158,19 @@ int createNewChannel(Server *server, std::vector<std::string> buffer, int fd)
         server->map_clients[fd].id_channels.push_back(server->_id_channel);
         server->map_clients[fd].Name_Channels.push_back(buffer[1]);
     }
+    Ch._secret = false;
+    Ch._isInvisible = false;
     server->map_channels.insert(std::make_pair(buffer[1] , Ch));
     server->Channels.push_back(Ch._name);
     server->_id_channel++;
     //send to the client that the channel is created
-    // client.client_info()
     rpl = ":" +server->map_clients[fd].client_info() + " JOIN " + buffer[1] + "\r\n"
         + ":loclahost" + " MODE " + buffer[1] + " +nt\r\n"
-        + ":localhost" + " 353 " + server->map_clients[fd].getNickName() + " = " + buffer[1] + " :" + server->map_clients[fd].getNickName() + "\r\n"
+        + ":localhost" + " 353 " + server->map_clients[fd].getNickName() + " = " + buffer[1] + " :@" + server->map_clients[fd].getNickName() + "\r\n"
         + ":localhost" + " 366 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :End of /NAMES list\r\n";
         send(fd, rpl.c_str(), rpl.size(), 0);
     return (EXIT_SUCCESS);
-}
+}   
 
 int checkChannel(Server *server, std::string name)
 {
@@ -111,6 +183,7 @@ int checkChannel(Server *server, std::string name)
 
 int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd)
 {
+    std::cout << "name cha " << buffer[1] << std::endl;
     Channel channel = server->map_channels[buffer[1]];
 
      // check if password is correct in case channel has one
@@ -140,29 +213,36 @@ int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int f
         send(fd, rpl.c_str(), rpl.size(), 0);
         return (EXIT_FAILURE);
     }
+    // add fd client to the channel
     std::string rpl;
     rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n"
     ":localhost 332 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :This is my cool channel! https://irc.com\r\n"
     ":localhost 333 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " " + server->map_clients[fd].getNickName() +"!" +server->map_clients[fd].getChannel() +"@localhost"  " 1547691506\r\n"
     ":localhost 353 " + server->map_clients[fd].getNickName() + " @ " + buffer[1] + " :" + server->map_clients[fd].getNickName() + " @"+ server->map_clients[fd].getNickName() + "\r\n"
     ":localhost 366 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :End of /NAMES list\r\n";
-    // add fd client to the channel
-    server->map_channels[buffer[1]]._fds.push_back(fd);
-    server->map_channels[buffer[1]]._members.push_back(fd);
+    std::cout << "rpl == "<< rpl ;
     send(fd, rpl.c_str(), rpl.size(), 0);
     for (IteratorChannel it = server->map_channels.begin(); it != server->map_channels.end(); it++)
     {
         if (it->second._name == buffer[1])
         {
+            server->map_clients[fd].Name_Channels.push_back(buffer[1]);
             it->second._fds.push_back(fd);
             it->second._members.push_back(fd);
             rpl = ":" + server->map_clients[fd].client_info()+ " JOIN " + buffer[1] + "\r\n";
             for(size_t j = 0; j < it->second._fds.size(); j++)
             {
                 if (it->second._fds[j] != fd)
-                    send(it->second._fds[j], rpl.c_str(), rpl.size(), 0);   
+                    send(it->second._fds[j], rpl.c_str(), rpl.size(), 0);
             }
         }
     }
     return (EXIT_SUCCESS);
+}
+int checkIfInvited(Server *server, std::vector<std::string> cmd, int fd){
+    for(size_t i = 0; i < server->map_clients[fd]._invite.size();i++){
+        if (server->map_clients[fd]._invite[i] == cmd[1])
+            return (EXIT_SUCCESS);   
+    }
+    return (EXIT_FAILURE);
 }

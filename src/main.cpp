@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/25 16:58:16 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 21:32:23 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ int main(int ac, char **av) {
                 server.fds.push_back(clientfd);
                 server.map_clients[clientfd];
                 // server.map_clients[clientfd].fd = clientfd;
-                server.map_clients[clientfd].client_address = server.client_address;
+                server.map_clients[clientfd]._ip = server.client_address.sin_addr.s_addr;
             }
 
             // Check if any connected server.clients have sent data
@@ -85,10 +85,19 @@ int main(int ac, char **av) {
                         std::cout << "error to read " << std::endl;
                     else
                     {
-                        if (server.map_clients[server.fds[i]].is_verified == false)
+                        std::vector<std::string> cmd = server.splitCMD(server.map_clients[server.fds[i]].buffer, ' ');
+                        if (cmd[0] == "PONG"){
+                            std::string rpl = "PONG :localhost";
+                            send(server.fds[i], rpl.c_str(), rpl.size(), 0);
+                        }
+                        if (server.map_clients[server.fds[i]].is_verified == false){
+                            
                             connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i], i);
-                        else
+                        }
+                        else{
+                            std::cout << server.map_clients[server.fds[i]].buffer << std::endl;
                             handleCmd(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
+                        }
                     }
                 }
             }

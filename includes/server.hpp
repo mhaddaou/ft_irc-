@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/27 18:46:58 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/01/30 21:29:00 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <unistd.h>
 # include <vector>
 # include <sstream>
+#include <ctime>
 # include "../includes/client.hpp"
 # define MAX_CLIENT (10)
 # define BUF_SIZE (1024)
@@ -81,7 +82,7 @@ int nick(Server *server, std::vector<std::string> cmd, int fd, int i);
 void user(Server *server, std::vector<std::string> cmd, int fd);
 int passwd(Server *server, std::vector<std::string> cmd, int fd, int i);
 void handleCmd(Server *server, std::string buffer, int fd);
-int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd);
+int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string line);
 void desconectedClient(Server *server, int fd, int i);
 std::string handlemsg(std::vector<std::string> msg);
 int checkIsRoot(Server *server, std::string buffer, int fd); 
@@ -95,3 +96,9 @@ void join_as_operator(int fd, Channel *channel, Client client);
 int notEnoghtPrmt(Server *server, int len, int fd);
 int checkCmd(std::string cmd);
 void splitChannelsAndPasswd(Server *server, std::string  command, int fd);
+void kick(Server* server, std::string buffer, int fd, char c);
+int checkIsBan(Server *server, std::vector<std::string> cmd, int fd);
+void invcmd(Server *server, std::vector<std::string> cmd, int fd);
+int checkBuffer(Server *server, std::string  buffer);
+void getCmd(Server *server, std::string cmd , int fd, int i);
+// void setCmd(Server *server, std::vector<std::string> args, int fd, int i);

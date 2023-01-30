@@ -65,6 +65,13 @@
         "type_traits": "cpp",
         "typeinfo": "cpp",
         "unordered_map": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "csignal": "cpp",
+        "list": "cpp",
+        "numeric": "cpp",
+        "queue": "cpp",
+        "regex": "cpp",
+        "set": "cpp",
+        "thread": "cpp"
     }
 }
