@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/31 15:30:54 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/31 16:54:41 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,10 +137,10 @@ int user(Server *server, std::vector<std::string> cmd, int fd, int i){
 int passwd(Server *server, std::vector<std::string> cmd,  int fd, int i)
 {
     std::string rpl;
+    // std::cout <<"passs  " << std::endl;
+    // std::cout << cmd[1]<< std::endl;
     if (cmd[0] == "PASS")
     {
-        // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].cend());
-        // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\r'), cmd[1].cend());
         //check if password
         if (cmd.size() == 2)
         {
@@ -329,7 +329,7 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string 
             // type of msgprv = :client PRIVMSG sender : message
             msg = handlemsg(cmd);
             if (server->map_clients[fdTarget].isClient == true)
-                rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second.getNickName()+ " : " + msg;
+                rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second.getNickName()+ " :" + msg;
             else
                 rpl = "FROM "+ server->map_clients[fd].getNickName() + ": " + msg;
             send(fdTarget, rpl.c_str(), rpl.size() , 0 );
