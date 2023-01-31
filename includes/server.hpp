@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/30 21:29:00 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/31 14:26:22 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <fstream>
 # include <unistd.h>
 # include <vector>
+#include <sys/time.h>
 # include <sstream>
 #include <ctime>
 # include "../includes/client.hpp"

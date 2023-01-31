@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/30 21:25:05 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/31 15:30:54 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,9 +246,8 @@ int connect (Server *server,std::string buffer, int fd, int i)
             std::cout << "hna2" << std::endl; 
         }
         send(fd, rpl.c_str(), rpl.size(), 0);
-        // rpl = "004 localhost 1.0 iwx ntl\r\n";
-        // send(fd, rpl.c_str(), rpl.size(), 0);
         server->map_clients[server->fds[i]].is_verified = true;
+        gettimeofday(&(server->map_clients[fd].timejoin), NULL);
         std::cout <<"• " << server->map_clients[fd].getNickName() << " is connected" << std::endl;
     }
     return (EXIT_SUCCESS); 
@@ -430,6 +429,40 @@ void listChannels(Server* server, int fd)
     return ;
 }
 
+void botHelp(Server *server, std::string buffer, int fd)
+{
+    std::vector<std::string>cmd = server->splitCMD(buffer, ' ');
+    std::string rpl;
+
+    if (cmd[1] == "!help")
+    {
+        rpl = "300 * BOT: Available commands: !time.\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        return ;
+    }
+    if (cmd[1] == "!time")
+    {
+        timeval currTime;
+        gettimeofday(&currTime, NULL);
+        int  timeSpend = (int)(currTime.tv_sec - server->map_clients[fd].timejoin.tv_sec);
+        std::string time = std::to_string(timeSpend);
+        rpl = "300 * BOT: Time  you spend in Server: "  + time  + " secound.\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        return ;
+    }
+    if (cmd[1] == "!list")
+    {
+        std::vector<std::string>  channels = server->map_clients[fd].Name_Channels;
+        std::string ch  = "";
+        for (size_t i = 0; i < channels.size(); i++)
+        {
+            ch += channels[i] + " ";
+        }
+        rpl = "300 * BOT: Channels  you have joined are: "  + ch  + ".\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+    }
+}
+
 void handleCmd(Server *server, std::string buffer, int fd)
 {
     std::string line = buffer;
@@ -464,6 +497,10 @@ void handleCmd(Server *server, std::string buffer, int fd)
         checkMode(server, cmd, fd);
     if (cmd[0] == "INVITE")
         invcmd(server, cmd, fd);
+    if (cmd[0] == "LIST")
+        listChannels(server, fd);
+    if (cmd[0] == "BOT")
+        botHelp(server, buffer, fd);
 }
 
 int Server::isClient(std::string str){

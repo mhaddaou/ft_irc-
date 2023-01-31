@@ -6,7 +6,7 @@
 /*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/30 21:32:23 by smia             ###   ########.fr       */
+/*   Updated: 2023/01/31 12:34:32 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,15 +90,13 @@ int main(int ac, char **av) {
                             std::string rpl = "PONG :localhost";
                             send(server.fds[i], rpl.c_str(), rpl.size(), 0);
                         }
-                        if (server.map_clients[server.fds[i]].is_verified == false){
-                            
+                        if (server.map_clients[server.fds[i]].is_verified == false)
                             connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i], i);
-                        }
                         else{
                             std::cout << server.map_clients[server.fds[i]].buffer << std::endl;
                             handleCmd(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
                         }
-                    }
+                    }   
                 }
             }
         }
