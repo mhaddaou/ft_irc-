@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/28 13:47:47 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/01 23:45:00 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 00:01:40 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,8 @@ int checkMode(std::vector<char> _modes, char mode)
 void banUser(Server* server, std::vector<std::string> cmd, int fd)
 {
     std::string rpl;
-    int target;
-    (void)fd;
+    int target = -1;
+    if (cmd.size() == 4){
     for(Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
         if (it->second.getNickName() == cmd[3])
         {
@@ -71,6 +71,16 @@ void banUser(Server* server, std::vector<std::string> cmd, int fd)
             server->map_channels[cmd[1]].kick_member(it->first, server, 'b');
             
         }
+    }   
+    }
+    else{
+        rpl = ":localhost 461 "+ server->map_clients[fd].getNickName() +": Not enough parameters \r\n";
+        send(fd, rpl.c_str() , rpl.size(), 0);
+    }
+    if (target == -1)
+    {
+        rpl = ":localhost 401 " + server->map_clients[fd].getNickName() + " : No such nick\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
     }
 }
 int addLimit(Server *server, std::vector<std::string> cmd, int fd){
@@ -83,6 +93,24 @@ int addLimit(Server *server, std::vector<std::string> cmd, int fd){
     }
     server->map_channels[cmd[1]]._limit = atoi(cmd[3].c_str());
     return (EXIT_SUCCESS);
+    
+}
+void rmBan(Server *server, std::vector<std::string> cmd){
+    std::string rpl;
+    int target;
+    
+    for(Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
+        if (it->second.getNickName() == cmd[3])
+        {
+            target = it->first;
+            // :server.name KICK #channel username :reason
+            rpl = ":localhost KICK " + cmd[1] + " " + it->second.getNickName() + " :has been banned from this channel.\r\n";
+            send(it->first, rpl.c_str(), rpl.size(), 0);
+            server->map_channels[cmd[1]]._bans.push_back(it->second._ip);
+            server->map_channels[cmd[1]].kick_member(it->first, server, 'b');
+            
+        }
+    }
     
 }
 
@@ -126,8 +154,8 @@ void checkMode(Server *server, std::vector<std::string> cmd, int fd){
                         }
                         else
                         {
-                            std::cout <<"m " <<mode[i] << std::endl;
-                            server->map_channels[cmd[1]]._modes.push_back(mode[i]);
+                            if (mode[i] != 'b')
+                                server->map_channels[cmd[1]]._modes.push_back(mode[i]);
                             if (mode[i] == 'p')
                                 server->map_channels[cmd[1]]._isInvisible = true;
                             if (mode[i] == 's')
@@ -158,8 +186,8 @@ void checkMode(Server *server, std::vector<std::string> cmd, int fd){
                                 server->map_channels[cmd[1]]._isInvisible = false;
                             if (mode[i] == 's')
                                 server->map_channels[cmd[1]]._secret = false;
-                            // if (mode[i] == 'b')
-                            //     rmBan(server, cmd, fd);
+                            if (mode[i] == 'b')
+                                rmBan(server, cmd);
                         }
                         else{
                             rpl = ":localhost 476 " + server->map_clients[fd].getNickName() + ": Unknown MODE flag \r\n";
