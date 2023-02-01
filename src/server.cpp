@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/01 16:53:10 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/01 23:39:37 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void Server::setTime(){
 }
 
 int Server::_select(){
-    if (select(FD_SETSIZE, &this->readfds,NULL, NULL, &this->timeout ) < 0){
+    if (select(FD_SETSIZE, &this->readfds,&this->writefds, NULL, &this->timeout ) < 0){
         std::cerr << "error in select" << std::endl;
         return (EXIT_FAILURE);
     }
@@ -91,8 +91,13 @@ int nick(Server *server,std::vector<std::string> cmd, int fd, int i){
     std::string rpl;
     if (cmd[0] == "NICK"){
         if (cmd.size() == 2)
-            // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\n'), cmd[1].end());
-            // cmd[1].erase(std::remove(cmd[1].begin(), cmd[1].end(), '\r'), cmd[1].end());
+        if (cmd[1] == "root"){
+            rpl = ":localhost 433 " + cmd[1] + ": Nickname is already in use\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            desconectedClient(server, fd, i);
+            std::cout << "NICK IS USED" << std::endl;
+            return (EXIT_FAILURE);
+        }
             if (server->map_clients.size() > 0){
                 for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++)
                 {
@@ -212,16 +217,31 @@ int checkBuffer(Server *server, std::string  buffer){
     std::vector<std::string> cmd = server->splitCMD(buffer, '\n');
     return (cmd.size());
 }
+int checkIsBan(Server *server, int fd){
+    unsigned int ip = server->map_clients[fd].client_address.sin_addr.s_addr;
+    for (size_t i = 0; i < server->bans.size(); i++)
+    {
+        if (ip == server->bans[i])
+            return (EXIT_FAILURE);
+    }
+    return (EXIT_SUCCESS);
+}
     
 int connect (Server *server,std::string buffer, int fd, int i)
 {
     std::string rpl;
     std::string all = buffer;
+    if (checkIsBan(server, fd) == EXIT_FAILURE){
+        rpl = ":localhost 465 . : You are banned from this server\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        desconectedClient(server, fd, i);
+        return 5;
+    }
     if (server->isClient(buffer) == EXIT_SUCCESS)
         server->map_clients[fd].isClient = true;
     int count = checkBuffer(server, buffer);      
-    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.end());
-    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
+    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
+    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
     std::vector<std::string> cmd = server->splitCMD(buffer, ' ');
     if (count > 1)
         getCmd(server, all, fd, i);
@@ -234,13 +254,12 @@ int connect (Server *server,std::string buffer, int fd, int i)
         user(server, cmd, fd, i);
     if (server->map_clients[fd].verif == 3){
         if (server->map_clients[fd].isClient == true){
-            // rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server " + server->map_clients[fd].getNickName() +"!user@host\r\n";
-            rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the internet relay chat\r\n"
-					":localhost 002 " + server->map_clients[fd].getNickName() + " :Your host is localhost, running version 1.0\r\n"
+            rpl = ":localhost 001 " + server->map_clients[fd].getNickName() + " : welcome to the server irc is created by smia and mhaddaou\r\n"
+					":localhost 002 " + server->map_clients[fd].getNickName() + " :Your host is localhost\r\n"
 					":localhost 003 " + server->map_clients[fd].getNickName() + " :This server was created 09/01/2023\r\n"
 					":localhost 004 " + server->map_clients[fd].getNickName() + " localhost 1.0 - -\r\n"
-					":localhost 372 " + server->map_clients[fd].getNickName() + " 🔨 welcome to localhost 🔨\r\n"
-					":localhost 376 " + server->map_clients[fd].getNickName() + " :End of /MOTD command\r\n";
+					":localhost 372 " + server->map_clients[fd].getNickName() + " welcome to localhost\r\n"
+					":localhost 376 " + server->map_clients[fd].getNickName() + " :To show msg of the day run /MOTD command\r\n";
         }
         else{
             rpl = "welcome to the server\n";
@@ -260,14 +279,12 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string 
     std::string msg;
 
     if (cmd.size() == 8){
-        // : DCC SEND "resource.txt" 168493577 53129 197
         for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
         {
         if (it->second.getNickName() == cmd[1]){
             fdTarget = it->first;
             break;
         }
-        // PRIVMSG smia :DCC SEND "resource.txt" 168493577 53344 197
         // PRIVMSG smia :DCC SEND "resource.txt" 168493577 53325 197
         // ms :psychom!Adium@10.11.2.9 PRIVMSG smia: DCC SEND "resource.txt" 168493577 53298 197 ki ratsaft
         }
@@ -304,13 +321,10 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string 
     if (cmd.size() < 3){
         
         if (cmd.size() < 2){
-            if (server->map_clients[fd].isClient == true)
-                rpl = ":localhost 461 "+ server->map_clients[fd].getNickName() +": Not enough parameters \r\n";
-            else
-                rpl = "Not enough parameters\n";
+            rpl = ":localhost 461 "+ server->map_clients[fd].getNickName() +": Not enough parameters \r\n";
         }
         else{
-                rpl = ":localhost 412 " + server->map_clients[fd].getNickName()+ ": No text to send\r\n";
+            rpl = ":localhost 412 " + server->map_clients[fd].getNickName()+ ": No text to send\r\n";
         }
         send(fd, rpl.c_str() , rpl.size(), 0);
         return (EXIT_FAILURE);
@@ -405,20 +419,6 @@ void kick(Server* server, std::string buffer, int fd, char c)
     }
 }
 
-void listChannels(Server* server, int fd)
-{
-    std::string channels = "";
-    for (IteratorChannel it = server->map_channels.begin(); it != server->map_channels.end(); ++it)
-    {
-        if (!it->second._isInvisible && !it->second._secret)
-            channels += it->first + " ";
-    }
-    std::string rpl;
-    rpl = ":localhost 322" + channels + ".\r\n";
-    send(fd, rpl.c_str(), rpl.size(), 0);
-    return ;
-}
-
 void botHelp(Server *server, std::string buffer, int fd)
 {
     std::vector<std::string>cmd = server->splitCMD(buffer, ' ');
@@ -452,10 +452,62 @@ void botHelp(Server *server, std::string buffer, int fd)
         send(fd, rpl.c_str(), rpl.size(), 0);
     }
 }
+int setNick(Server *server, int fd, int check){
+    std::string rpl;
+    if (check == 431)
+        rpl = ":localhost 431 " + server->map_clients[fd].getNickName() + " : No nickname given\r\n";
+    else if (check == 433)
+        rpl = ":localhost 433 " + server->map_clients[fd].getNickName() + " : Nickname is already in use\r\n";
+    else 
+        rpl = ":localhost 432 " + server->map_clients[fd].getNickName() + " : Erroneus nickname\r\n";
+    send(fd, rpl.c_str(), rpl.size(), 0);
+    return (EXIT_SUCCESS);
+}
+void killfun(Server *server, std::vector<std::string> cmd, int fd){
+    std::string rpl;
+    int target = -1;
+    unsigned int ip;
+    if (server->map_clients[fd].getNickName() != "root")
+        rpl = ":localhost 481 " + server->map_clients[fd].getNickName()+ ": Permission Denied- You're not an IRC operator\r\n";
+    else{
+        for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++)
+        {
+            if(it->second.getNickName() == cmd[1]){
+                target = it->first;
+                ip = it->second.client_address.sin_addr.s_addr;
+            }
+    
+        }
+        if (target == -1){
+            rpl = ":localhost 401 " + server->map_clients[fd].getNickName() + " : No such nick\r\n";
+            send(fd, rpl.c_str(), rpl.size(), 0);
+            return ;
+        }
+        else{
+            rpl = ":localhost 465 " + cmd[1] + " : You are banned from this server\r\n";
+            send(target, rpl.c_str(), rpl.size(), 0);
+            server->bans.push_back(ip);
+            server->map_clients[target]._ban = true;
+        }
+    }
+}
+void msgOfTheDay(Server *server, std::vector<std::string> cmd, int fd){
+    std::string rpl;
+    if (cmd.size() == 1){
+        rpl = ":localhost 375 " + server->map_clients[fd].getNickName() + ":- localhost Message of the Day \n"+
+        ":localhost 372 " + server->map_clients[fd].getNickName() + ":- this net is a really cool network!\n"+
+        ":localhost 372 " + server->map_clients[fd].getNickName() + ":- NO spamming please, thank you !\n"+
+        ":localhost 376 " + server->map_clients[fd].getNickName() + ":- End of /MOTD command.\r\n";    
+    }
+    else
+        rpl = ":localhost 461 "+ server->map_clients[fd].getNickName() +": Not enough parameters \r\n";
+    send(fd, rpl.c_str(), rpl.size(), 0);
+}
 
 void handleCmd(Server *server, std::string buffer, int fd)
 {
     std::string line = buffer;
+    int check;
     if (server->isClient(buffer) == EXIT_SUCCESS)
         server->map_clients[fd].isClient = true;
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.end());
@@ -467,8 +519,11 @@ void handleCmd(Server *server, std::string buffer, int fd)
         setNoticeMsg(server, cmd, fd);
     if (cmd[0] == "WHOIS")
         whoIs(server, cmd, fd);
-    if (cmd[0] == "NICK")
-        Nick(server, cmd, fd);
+    if (cmd[0] == "NICK"){
+        check = NickError(server, cmd);
+        setNick(server, fd, check);
+        
+    }
     if (cmd[0] == "JOIN")
     {
         if (checkCmd(buffer) == EXIT_SUCCESS)
@@ -487,10 +542,13 @@ void handleCmd(Server *server, std::string buffer, int fd)
         checkMode(server, cmd, fd);
     if (cmd[0] == "INVITE")
         invcmd(server, cmd, fd);
-    if (cmd[0] == "LIST")
-        listChannels(server, fd);
     if (cmd[0] == "BOT")
         botHelp(server, buffer, fd);
+    if (cmd[0] == "KILL"){
+        killfun(server, cmd, fd);
+    }
+    if (cmd[0] == "MOTD")
+        msgOfTheDay(server, cmd, fd);
 }
 
 int Server::isClient(std::string str){

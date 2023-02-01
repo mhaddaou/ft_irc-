@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 19:02:06 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/31 14:22:44 by smia             ###   ########.fr       */
+/*   Updated: 2023/02/01 22:29:29 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ class Client{
         void incrementVerf(void) { ++verif;}
         bool is_verified;
         bool isClient;
+        bool _ban;
         std::vector<int> id_channels;
         std::vector<std::string> Name_Channels;
         std::string client_info()
@@ -73,6 +74,6 @@ class Client{
                 std::stringstream ss;
                 ss << this->client_address.sin_addr.s_addr;
                 ss >> ip;
-			return (_nickname + "!" + _name + "@" + "127.0.0.1");
+			return (_nickname + "!" + _name + "@" + ip);
 		}
 };

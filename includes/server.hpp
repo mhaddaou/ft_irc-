@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/31 14:26:22 by smia             ###   ########.fr       */
+/*   Updated: 2023/02/01 23:39:47 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,13 +74,14 @@ class Server{
         void setTime();
         std::map<int, Client> map_clients;
         std::vector<int> fds;
+        std::vector<unsigned int> bans;
         std::map<std::string ,Channel > map_channels;
         int _id_channel;
         std::vector<std::string> Channels;
 };
 int connect(Server *server, std::string buffer, int fd, int i);
 int nick(Server *server, std::vector<std::string> cmd, int fd, int i);
-void user(Server *server, std::vector<std::string> cmd, int fd);
+int user(Server *server, std::vector<std::string> cmd, int fd, int i);
 int passwd(Server *server, std::vector<std::string> cmd, int fd, int i);
 void handleCmd(Server *server, std::string buffer, int fd);
 int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string line);
@@ -89,12 +90,9 @@ std::string handlemsg(std::vector<std::string> msg);
 int checkIsRoot(Server *server, std::string buffer, int fd); 
 void setNoticeMsg(Server *server, std::vector<std::string> cmd, int fd);
 void whoIs(Server *server, std::vector<std::string> cmd, int fd);
-void Nick( Server *server, std::vector<std::string> cmd, int fd);
+int NickError( Server *server, std::vector<std::string> cmd);
 int checkInvalidChar(std::string nick);
 int join (Server *server, std::string buffer, int fd);
-void join_as_member(int fd, Channel *channel, Client client);
-void join_as_operator(int fd, Channel *channel, Client client);
-int notEnoghtPrmt(Server *server, int len, int fd);
 int checkCmd(std::string cmd);
 void splitChannelsAndPasswd(Server *server, std::string  command, int fd);
 void kick(Server* server, std::string buffer, int fd, char c);
@@ -102,4 +100,4 @@ int checkIsBan(Server *server, std::vector<std::string> cmd, int fd);
 void invcmd(Server *server, std::vector<std::string> cmd, int fd);
 int checkBuffer(Server *server, std::string  buffer);
 void getCmd(Server *server, std::string cmd , int fd, int i);
-// void setCmd(Server *server, std::vector<std::string> args, int fd, int i);
+int setNick(Server *server, int fd, int check);

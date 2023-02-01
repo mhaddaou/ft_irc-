@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/01 16:48:48 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/01 23:46:52 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,11 +73,7 @@ void setNoticeMsg(Server *server, std::vector<std::string> cmd, int fd){
 }
 void whoIs(Server *server, std::vector<std::string> cmd, int fd){
     std::string rpl;
-    // int r = server->client_address.sin_addr.s_addr;
     if (cmd.size() == 3){
-        // if this user is operator 
-        // 313     RPL_WHOISOPERATOR
-                        // "<nick> :is an IRC operator"
         for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
             if (it->second.getNickName() == cmd[1]){
                 // The first line contains the nickname, username, hostname, and realname of the user being queried.
@@ -98,7 +94,6 @@ void whoIs(Server *server, std::vector<std::string> cmd, int fd){
             }
         }       
     }
-    //:<server name> 311 <requesting nickname> <nickname> <username> <hostname> * :<realname>
 }
 
 int checkInvalidChar(std::string nick){
@@ -107,65 +102,27 @@ int checkInvalidChar(std::string nick){
             || nick[i] == '*' || nick[i] == '(' || nick[i] == ')' || nick[i] == '-' || nick[i] == '+' || nick[i] == '=' || nick[i] == '{' 
                 || nick[i] == '}' || nick[i] == '[' || nick[i] == ']' || nick[i] == '|' || nick[i] == '\\' || nick[i] == ':' || nick[i] == ';'
                     || nick[i] == '"' || nick[i] == '\'' || nick[i] == '<' || nick[i] == '>' || nick[i] == ',' || nick[i] == '.' || nick[i] == '/' 
-                        || nick[i] == '?')
+                        || nick[i] == '?' || nick[i] == '_')
             return (EXIT_FAILURE);
         }
     
     return (EXIT_SUCCESS);
 }
 
-void Nick( Server *server, std::vector<std::string> cmd, int fd){
+int NickError( Server *server, std::vector<std::string> cmd){
     std::string rpl;
-    //from limechat
-    if (server->map_clients[fd].isClient == true){
-        if (cmd.size() == 2 && cmd[1].size() == 1){
-            rpl = ":localhost 431 " + server->map_clients[fd].getNickName()+  " :No nickname given\r\n";
-            send(fd, rpl.c_str(), rpl.size(), 0);
-            return ;
-        }
-        else if (cmd.size() > 3 || checkInvalidChar(cmd[1]) == EXIT_FAILURE){
-            rpl = ":localhost 432 " + server->map_clients[fd].getNickName()+  " :Erroneous nickname\r\n";
-            send(fd, rpl.c_str(), rpl.size(), 0);
-            return ;
-        }
-        else{
-            server->map_clients[fd].setNickName(cmd[1]);
-            std::cout << "NICK OK" << std::endl;
-            return ;
-        }
-        for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
-            if (it->second.getNickName() == cmd[1]){
-                rpl = ":localhost 433 " + server->map_clients[fd].getNickName()+  " :Nickname is already in use\r\n";
-                send(fd, rpl.c_str(), rpl.size(), 0);
-                return ;
-            }
-        }
-    }//from netcat
-    else{
-        if (cmd.size() == 1){
-            rpl = "ERROR \tNo nickname given\r\n";
-            send(fd, rpl.c_str(), rpl.size(), 0);
-            return ;
-        }
-        else if (cmd.size() > 2 || checkInvalidChar(cmd[1]) == EXIT_FAILURE){
-            rpl = "ERROR \tErroneous nickname\r\n";
-            send(fd, rpl.c_str(), rpl.size(), 0);
-            return ;
-        }
-        else{
-            server->map_clients[fd].setNickName(cmd[1]);
-            std::cout << "NICK OK" << std::endl;
-            return ;
-        }
-        for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
-            if (it->second.getNickName() == cmd[1]){
-                rpl = "ERROR \tNickname is already in use\r\n";
-                send(fd, rpl.c_str(), rpl.size(), 0);
-                return ;
-            }
-        }
-            
+    if (cmd.size() == 2 &&  cmd[1] == ":"){
+        return (431);
     }
+    if (checkInvalidChar(cmd[1]) == EXIT_FAILURE)
+        return (432);
+    if (cmd[1] == "root")
+        return (433);
+    for(Iterator it = server->map_clients.begin(); it != server->map_clients.end(); it++){
+        if (it->second.getNickName() == cmd[1])
+            return (433);
+    }
+    return (432);
 }
 int notEnoghtPrmt(Server *server, std::vector<std::string> buffer, int fd){
     std::string rpl;
@@ -197,10 +154,6 @@ int checkCmd(std::string cmd){
         return(EXIT_SUCCESS);
     return(EXIT_FAILURE);
 }
-// int checkNameChannels(std::vector<std::string> channels){
-    
-    
-// }
 void splitChannelsAndPasswd(Server *server, std::string  command, int fd)
 {
     bool check = true;
@@ -216,9 +169,6 @@ void splitChannelsAndPasswd(Server *server, std::string  command, int fd)
     std::string channels = cmd[0];
     std::string passwd = cmd[1];
     std::vector<std::string> _cha = server->splitCMD(channels, ',');
-    // if (checkNameChannels(_cha) == EXIT_FAILURE){
-    //     result = 
-    // }
     std::vector<std::string> _pass = server->splitCMD(passwd, ',');
     
     if (_cha.size() < _pass.size())
@@ -253,8 +203,6 @@ int checkIsBan(Server *server, std::vector<std::string> cmd, int fd){
         
     }
     return (EXIT_SUCCESS);
-    
-    
 }
 
 int join(Server *server, std::string cmd, int fd)
@@ -304,5 +252,4 @@ void invcmd(Server *server, std::vector<std::string> cmd, int fd){
         rpl = ":localhost 461 "+ server->map_clients[fd].getNickName() +": Not enough parameters \r\n";
         send(fdtarget, rpl.c_str(), rpl.size(), 0);  
     }
-    
 }

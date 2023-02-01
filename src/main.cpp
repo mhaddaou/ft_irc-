@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/31 16:52:32 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/01 23:08:43 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,11 +42,14 @@ int main(int ac, char **av) {
         while (true) {
             // Clear the file descriptor set
             FD_ZERO(&server.readfds);
+            FD_ZERO(&server.writefds);
             // Add the socket and connected server.clients to the file descriptor set
             FD_SET(server.serverfd, &server.readfds);
+            FD_SET(server.serverfd, &server.writefds);
             for (size_t i = 0; i < server.fds.size(); ++i)
             {
                 FD_SET(server.fds[i], &server.readfds);
+                FD_SET(server.serverfd, &server.writefds);
             }
             // Set up timeout for select()
             server.setTime();
@@ -79,22 +82,21 @@ int main(int ac, char **av) {
                     int recev_bytes = recv(server.fds[i], server.map_clients[server.fds[i]].buffer, BUF_SIZE, 0);
                     if (recev_bytes && server.checkQuit(server.map_clients[server.fds[i]].buffer) == EXIT_SUCCESS)
                         recev_bytes = 0;
+                    if (server.map_clients[server.fds[i]]._ban == true)
+                        recev_bytes = 0;
                     if (recev_bytes == 0)
                         desconectedClient(&server, server.fds[i], i);
                     else if (recev_bytes < 0)
                         std::cout << "error to read " << std::endl;
                     else
                     {
-                        std::vector<std::string> cmd = server.splitCMD(server.map_clients[server.fds[i]].buffer, ' ');
-                        if (cmd[0] == "PONG"){
-                            std::string rpl = "PONG :localhost";
-                            send(server.fds[i], rpl.c_str(), rpl.size(), 0);
-                        }
                         if (server.map_clients[server.fds[i]].is_verified == false)
                             connect(&server, server.map_clients[server.fds[i]].buffer, server.fds[i], i);
-                        else
+                        else{
                             handleCmd(&server, server.map_clients[server.fds[i]].buffer, server.fds[i]);
-                    }   
+                            
+                        }
+                    }
                 }
             }
         }

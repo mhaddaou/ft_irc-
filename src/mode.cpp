@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/28 13:47:47 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/29 22:06:05 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/01 23:45:00 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,6 @@ int addLimit(Server *server, std::vector<std::string> cmd, int fd){
 void checkMode(Server *server, std::vector<std::string> cmd, int fd){
     std::string mode;
     std::string rpl;
-    if (cmd.size() == 3 && cmd[2] == "+sn" && !server->map_channels[cmd[1]].is_admin(fd))
-        return ;
     IteratorChannel it1 = server->map_channels.find(cmd[1]);
     if (it1 == server->map_channels.end())
     {
