@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/21 15:29:16 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/30 20:43:49 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/01 16:48:48 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,10 @@ void desconectedClient(Server *server, int fd, int i){
         std::cout << server->map_clients[fd].getNickName() << " Disconnected" << std::endl;
     else
          std::cout << "Guest Disconnected" << std::endl;
+    for (size_t i = 0; i < server->map_clients[fd].Name_Channels.size(); i++)
+    {
+        server->map_channels[server->map_clients[fd].Name_Channels[i]].kick_member(fd, server, 'k');
+    }
     server->map_clients.erase(fd);
     server->fds.erase(server->fds.begin() + i);
     close(fd); 
@@ -39,8 +43,8 @@ std::string handlemsg(std::vector<std::string> msg){
     return (ret);
 }
 int checkIsRoot(Server *server, std::string buffer, int fd){
-    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.cend());
-    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.cend());
+    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.end());
+    buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
     if (buffer == "root")
     {
         server->map_clients[fd].setName("admin_server");
@@ -115,7 +119,6 @@ void Nick( Server *server, std::vector<std::string> cmd, int fd){
     //from limechat
     if (server->map_clients[fd].isClient == true){
         if (cmd.size() == 2 && cmd[1].size() == 1){
-            // std::cout << cmd[1].size() << std::endl;
             rpl = ":localhost 431 " + server->map_clients[fd].getNickName()+  " :No nickname given\r\n";
             send(fd, rpl.c_str(), rpl.size(), 0);
             return ;
@@ -200,7 +203,6 @@ int checkCmd(std::string cmd){
 // }
 void splitChannelsAndPasswd(Server *server, std::string  command, int fd)
 {
-    std::cout << command << std::endl;
     bool check = true;
     command.erase(0, 5);
     size_t len = 0;
@@ -278,7 +280,6 @@ int join(Server *server, std::string cmd, int fd)
 void invcmd(Server *server, std::vector<std::string> cmd, int fd){
     std::string rpl;
     int fdtarget = -1;
-    std::cout << "size == " << cmd.size() << std::endl;
     if (cmd.size() == 3){
         for (Iterator it = server->map_clients.begin(); it !=  server->map_clients.end(); it++){
             if (it->second.getNickName() == cmd[1]){

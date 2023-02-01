@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/15 16:17:29 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/01/23 01:09:16 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/01 16:32:00 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,15 @@
 
 void Client::setNickName(std::string n)
 {
-    // n.erase(std::remove(n.begin(), n.end(), '\n'), n.cend());
-    // n.erase(std::remove(n.begin(), n.end(), '\r'), n.cend());
+    // n.erase(std::remove(n.begin(), n.end(), '\n'), n.end());
+    // n.erase(std::remove(n.begin(), n.end(), '\r'), n.end());
     this->_nickname = n;
 }
 
 void Client::setName(std::string n)
 {
-    // n.erase(std::remove(n.begin(), n.end(), '\n'), n.cend());
-    // n.erase(std::remove(n.begin(), n.end(), '\r'), n.cend());
+    // n.erase(std::remove(n.begin(), n.end(), '\n'), n.end());
+    // n.erase(std::remove(n.begin(), n.end(), '\r'), n.end());
     this->_name = n;
 }
 
@@ -49,8 +49,8 @@ std::string Client::getNickName() const
 }
 void Client::setRealName(std::string n)
 {
-    // n.erase(std::remove(n.begin(), n.end(), '\n'), n.cend());
-    // n.erase(std::remove(n.begin(), n.end(), '\r'), n.cend());
+    // n.erase(std::remove(n.begin(), n.end(), '\n'), n.end());
+    // n.erase(std::remove(n.begin(), n.end(), '\r'), n.end());
     this->_realName = n;
 }
 std::string Client::getRealName() const
@@ -60,7 +60,7 @@ std::string Client::getRealName() const
 
 void Client::setPassword(std::string n)
 {
-    n.erase(std::remove(n.begin(), n.end(), '\n'), n.cend());
+    n.erase(std::remove(n.begin(), n.end(), '\n'), n.end());
     this->_password= n;
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/25 10:23:54 by smia              #+#    #+#             */
-/*   Updated: 2023/01/30 21:23:29 by smia             ###   ########.fr       */
+/*   Updated: 2023/02/01 16:34:24 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ void Channel::kick_member(int fd, Server* server, char c)
     std::string rpl;
     // if channel empty 
 
-    std::cout << this->_fds.size() << std::endl;
     for (size_t i = 0; i < this->_fds.size(); ++i)
     {
         if (this->_fds[i] == fd){
@@ -90,28 +89,8 @@ void Channel::kick_member(int fd, Server* server, char c)
             send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
         }
     }
-
-
-    // else if (c == 'p'){
-    //     rpl = ":" + client.client_info() + " PART " + this->_name + "\r\n";
-    //     send(fd, rpl.c_str(), rpl.size(), 0);
-    //     rpl.clear();
-    //     rpl = client.client_info() + " PART " + this->_name + "\r\n";
-    //     // send to all memebres that one client PART
-    //     for (size_t i = 0; i < this->_fds.size(); ++i)
-    //     {
-    //         send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
-    //     }
-    // }
     else if (c == 'b'){
-        
-        std::cout << "bannnning" << std::endl;
-        // :irc.example.com MODE #channel +b user!~username@hostname
-        // rpl = ":localhost MODE " + this->_name + 
-        // :irc.example.com PRIVMSG #channel :user!~username@hostname has been banned from this channel.
-        // :irc.example.com KICK #channel user :reason
         rpl = ":localhost MODE " +this->_name + " +b " + client.client_info() + ":has been banned from this channel.\r\n";
-        // "367 * " + _channel + " " + it->first)
         for (size_t i = 0; i < this->_fds.size(); ++i)
         {
             send(this->_fds[i], rpl.c_str(), rpl.size(), 0);
@@ -183,7 +162,6 @@ int checkChannel(Server *server, std::string name)
 
 int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int fd)
 {
-    std::cout << "name cha " << buffer[1] << std::endl;
     Channel channel = server->map_channels[buffer[1]];
 
      // check if password is correct in case channel has one
@@ -220,7 +198,6 @@ int joinToExistingChannel(Server *server, std::vector<std::string> buffer, int f
     ":localhost 333 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " " + server->map_clients[fd].getNickName() +"!" +server->map_clients[fd].getChannel() +"@localhost"  " 1547691506\r\n"
     ":localhost 353 " + server->map_clients[fd].getNickName() + " @ " + buffer[1] + " :" + server->map_clients[fd].getNickName() + " @"+ server->map_clients[fd].getNickName() + "\r\n"
     ":localhost 366 " + server->map_clients[fd].getNickName() + " " + buffer[1] + " :End of /NAMES list\r\n";
-    std::cout << "rpl == "<< rpl ;
     send(fd, rpl.c_str(), rpl.size(), 0);
     for (IteratorChannel it = server->map_channels.begin(); it != server->map_channels.end(); it++)
     {
