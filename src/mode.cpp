@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/28 13:47:47 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 00:01:40 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 00:09:28 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,24 +95,21 @@ int addLimit(Server *server, std::vector<std::string> cmd, int fd){
     return (EXIT_SUCCESS);
     
 }
-void rmBan(Server *server, std::vector<std::string> cmd){
-    std::string rpl;
-    int target;
+// void rmBan(Server *server, std::vector<std::string> cmd){
+//     std::string rpl;
+//     int target;
     
-    for(Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
-        if (it->second.getNickName() == cmd[3])
-        {
-            target = it->first;
-            // :server.name KICK #channel username :reason
-            rpl = ":localhost KICK " + cmd[1] + " " + it->second.getNickName() + " :has been banned from this channel.\r\n";
-            send(it->first, rpl.c_str(), rpl.size(), 0);
-            server->map_channels[cmd[1]]._bans.push_back(it->second._ip);
-            server->map_channels[cmd[1]].kick_member(it->first, server, 'b');
+//     ip = server
+//     for(size_t i=0; i<cmd.size(); i++){
+//         if ( == cmd[3])
+//         {
+//             // :server.name KICK #channel username :reason
+//             server->map_channels[cmd[1]]._bans.erase(server->map_channels[cmd[1]]._bans.begin() + it);
             
-        }
-    }
+//         }
+//     }
     
-}
+// }
 
 void checkMode(Server *server, std::vector<std::string> cmd, int fd){
     std::string mode;
