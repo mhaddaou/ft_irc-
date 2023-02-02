@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 17:43:28 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 19:10:36 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,14 +196,12 @@ void getCmd(Server *server, std::string buffer , int fd, int i){
         if (args[0] == "PASS"){
             if (args[1][0] == ':')
                 args[1].erase(0 , 1);
-            std::cout <<"pass == " <<  args[1] << std::endl;
             passwd(server, args, fd, i);
         }
         if (args[0] == "NICK")
             nick(server, args, fd, i);
         if (args[0] == "USER")
             user(server, args, fd, i);
-        // setCmd(server, args, fd, i);
     }
 }
 
@@ -225,6 +223,7 @@ int connect (Server *server,char * buf, int fd, int i)
 {
     std::string buffer ;
     int check = -1;
+    std::string rpl;
     for (int j = 0 ; buf[j];j++){
         if (buf[j] == '\n'){
             check = 1;
@@ -241,8 +240,6 @@ int connect (Server *server,char * buf, int fd, int i)
         buffer = endoffile;
         endoffile.clear();
     }
-    std::cout << buffer << std::endl;
-    std::string rpl;
     std::string all = buffer;
     if (checkIsBan(server, fd) == EXIT_FAILURE){
         rpl = ":localhost 465 . : You are banned from this server\r\n";
@@ -331,6 +328,7 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string 
         }
         return 1;
     }
+    std::cout << "size -- " << cmd.size() << std::endl;
     if (cmd.size() < 3){
         
         if (cmd.size() < 2){
@@ -432,39 +430,7 @@ void kick(Server* server, std::string buffer, int fd, char c)
     }
 }
 
-void botHelp(Server *server, std::string buffer, int fd)
-{
-    std::vector<std::string>cmd = server->splitCMD(buffer, ' ');
-    std::string rpl;
 
-    if (cmd[1] == "!help")
-    {
-        rpl = "300 * BOT: Available commands: !time.\r\n";
-        send(fd, rpl.c_str(), rpl.size(), 0);
-        return ;
-    }
-    if (cmd[1] == "!time")
-    {
-        timeval currTime;
-        gettimeofday(&currTime, NULL);
-        int  timeSpend = (int)(currTime.tv_sec - server->map_clients[fd].timejoin.tv_sec);
-        std::string time = std::to_string(timeSpend);
-        rpl = "300 * BOT: Time  you spend in Server: "  + time  + " secound.\r\n";
-        send(fd, rpl.c_str(), rpl.size(), 0);
-        return ;
-    }
-    if (cmd[1] == "!list")
-    {
-        std::vector<std::string>  channels = server->map_clients[fd].Name_Channels;
-        std::string ch  = "";
-        for (size_t i = 0; i < channels.size(); i++)
-        {
-            ch += channels[i] + " ";
-        }
-        rpl = "300 * BOT: Channels  you have joined are: "  + ch  + ".\r\n";
-        send(fd, rpl.c_str(), rpl.size(), 0);
-    }
-}
 int setNick(Server *server, int fd, int check){
     std::string rpl;
     if (check == 431)
@@ -520,7 +486,8 @@ void msgOfTheDay(Server *server, std::vector<std::string> cmd, int fd){
 void handleCmd(Server *server, char *buf, int fd)
 {
     std::string buffer;
-     int checkline = -1;
+    int checkline = -1;
+    int check;
     for (int j = 0 ; buf[j];j++){
         if (buf[j] == '\n'){
             checkline = 1;
@@ -537,9 +504,7 @@ void handleCmd(Server *server, char *buf, int fd)
         buffer = endoffile;
         endoffile.clear();
     }
-    std::cout << buffer << std::endl;
     std::string line = buffer;
-    int check;
     if (server->isClient(buffer) == EXIT_SUCCESS)
         server->map_clients[fd].isClient = true;
     buffer.erase(std::remove(buffer.begin(), buffer.end(), '\n'), buffer.end());

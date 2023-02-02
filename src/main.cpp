@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 12:54:55 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 17:22:04 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 19:09:06 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,6 @@ int main(int ac, char **av) {
     if (ac < 3)
         std::cerr << "invalid arguments" << std::endl;
     else{
-        std::ofstream file;
-        file.open("test.txt");
-        std::string line;
-        
-        
-        // char syn_ack[] = "SYN-ACK";
-        
         Server server(av[1], av[2]);
         // Create socket
         server._socket();

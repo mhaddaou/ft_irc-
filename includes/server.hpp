@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 17:33:03 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 18:59:24 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,3 +101,4 @@ void invcmd(Server *server, std::vector<std::string> cmd, int fd);
 int checkBuffer(Server *server, std::string  buffer);
 void getCmd(Server *server, std::string cmd , int fd, int i);
 int setNick(Server *server, int fd, int check);
+void botHelp(Server *server, std::string buffer, int fd);
