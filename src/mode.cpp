@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/28 13:47:47 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 00:09:28 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 14:47:50 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ void rmModes(Server *server, std::string channel, char rm){
 }
 int checkMode(std::vector<char> _modes, char mode)
 {
+    if (mode == 'b')
+        return (EXIT_SUCCESS);
     for(size_t i = 0; i < _modes.size();i++){
         if (_modes[i] == mode)
             return (EXIT_FAILURE);
@@ -95,21 +97,23 @@ int addLimit(Server *server, std::vector<std::string> cmd, int fd){
     return (EXIT_SUCCESS);
     
 }
-// void rmBan(Server *server, std::vector<std::string> cmd){
-//     std::string rpl;
-//     int target;
+void rmBan(Server *server, std::vector<std::string> cmd){
+    unsigned int ip;
     
-//     ip = server
-//     for(size_t i=0; i<cmd.size(); i++){
-//         if ( == cmd[3])
-//         {
-//             // :server.name KICK #channel username :reason
-//             server->map_channels[cmd[1]]._bans.erase(server->map_channels[cmd[1]]._bans.begin() + it);
-            
-//         }
-//     }
-    
-// }
+    for(Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it){
+        if (it->second.getNickName() == cmd[3])
+        {
+            ip = it->second._ip;
+            break ;
+        }
+    }
+    for(size_t i = 0; i < server->map_channels[cmd[1]]._bans.size();i++){
+        if (ip == server->map_channels[cmd[1]]._bans[i]){
+            server->map_channels[cmd[1]]._bans.erase(server->map_channels[cmd[1]]._bans.begin() + i);
+            break;
+        }
+    }
+}
 
 void checkMode(Server *server, std::vector<std::string> cmd, int fd){
     std::string mode;
@@ -136,6 +140,7 @@ void checkMode(Server *server, std::vector<std::string> cmd, int fd){
             return ;
         }
         else{
+
             for(size_t i = 0; i < mode.size(); i++)
             {
                 if (mode[i] == '+')
@@ -174,19 +179,25 @@ void checkMode(Server *server, std::vector<std::string> cmd, int fd){
                 }
                 if (mode[i] == '-')
                 {
+                    std::cout << "is negative" << std::endl;
+                    std::cout << "before " << mode[i] << std::endl;
                     ++i;
+                    std::cout << "after " << mode[i] << std::endl;
                     while(mode[i] != '+' && mode[i] != '\0')
                     {
+                        std::cout << "after " << mode[i] << std::endl;
+
                         if (checkMode(server->map_channels[cmd[1]]._modes, mode[i]) == EXIT_FAILURE){
                             rmModes(server,cmd[1], mode[i]);
                             if (mode[i] == 'p')
                                 server->map_channels[cmd[1]]._isInvisible = false;
                             if (mode[i] == 's')
                                 server->map_channels[cmd[1]]._secret = false;
-                            if (mode[i] == 'b')
-                                rmBan(server, cmd);
                         }
+                        else if (mode[i] == 'b')
+                            rmBan(server, cmd);
                         else{
+                            std::cout << mode[i] << std::endl;
                             rpl = ":localhost 476 " + server->map_clients[fd].getNickName() + ": Unknown MODE flag \r\n";
                             send(fd, rpl.c_str(), rpl.size(), 0);
                             return ;

@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/01 23:39:37 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 13:46:22 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -506,6 +506,7 @@ void msgOfTheDay(Server *server, std::vector<std::string> cmd, int fd){
 
 void handleCmd(Server *server, std::string buffer, int fd)
 {
+    std::cout << buffer << std::endl;
     std::string line = buffer;
     int check;
     if (server->isClient(buffer) == EXIT_SUCCESS)
