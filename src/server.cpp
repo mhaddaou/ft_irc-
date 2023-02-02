@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 15:28:12 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 15:55:04 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -551,6 +551,7 @@ void handleCmd(Server *server, std::string buffer, int fd)
     }
     if (cmd[0] == "MOTD")
         msgOfTheDay(server, cmd, fd);
+    //err
 }
 
 int Server::isClient(std::string str){

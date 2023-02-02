@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: smia <smia@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/28 13:47:47 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 14:47:50 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 16:02:25 by smia             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,6 @@ void checkMode(Server *server, std::vector<std::string> cmd, int fd){
             return ;
         }
         else{
-
             for(size_t i = 0; i < mode.size(); i++)
             {
                 if (mode[i] == '+')
@@ -156,7 +155,7 @@ void checkMode(Server *server, std::vector<std::string> cmd, int fd){
                         }
                         else
                         {
-                            if (mode[i] != 'b')
+                            if (mode[i] != 'b' && mode[i] != 'o')
                                 server->map_channels[cmd[1]]._modes.push_back(mode[i]);
                             if (mode[i] == 'p')
                                 server->map_channels[cmd[1]]._isInvisible = true;
@@ -196,6 +195,8 @@ void checkMode(Server *server, std::vector<std::string> cmd, int fd){
                         }
                         else if (mode[i] == 'b')
                             rmBan(server, cmd);
+                        else if (mode[i] == 'o')
+                            rmUserOperator(server, cmd, fd);
                         else{
                             std::cout << mode[i] << std::endl;
                             rpl = ":localhost 476 " + server->map_clients[fd].getNickName() + ": Unknown MODE flag \r\n";
@@ -279,6 +280,55 @@ int setUserOperator(Server *server, std::vector<std::string> cmd, int fd){
     }
     // :server.name MODE #channel +o recipient
     rpl = ":localhost MODE " + cmd[1] + " +o " + cmd[3] + "\r\n";
+    send(fd, rpl.c_str(), rpl.size(), 0);
+    return (EXIT_FAILURE);
+}
+
+
+int rmUserOperator(Server *server, std::vector<std::string> cmd, int fd){
+    // MODE #channel -o username
+    std::string rpl;
+    int fdtarget = -1;
+    Iterator it = server->map_clients.begin();
+    for (; it != server->map_clients.end(); it++)
+    {
+        if (it->second.getNickName() == cmd[3])
+        {
+            fdtarget = it->first;
+            break ;       
+        }
+    }
+    if (fdtarget == -1)
+    {
+        rpl = ":localhost 401 " + cmd[3] + " : No such nick/channel\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        return (EXIT_FAILURE); 
+    }
+    IteratorChannel it1 = server->map_channels.find(cmd[1]);
+    if (!it1->second.is_channel_client(fdtarget))
+    {
+        // :server.name 441 sender recipient #channel :They aren't on that channel
+        rpl = ":localhost 441 " + it->second.getNickName() + " " + cmd[3] + " " + cmd[1] + " :They aren't on that channel\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        return (EXIT_FAILURE);
+    }
+    if (!it1->second.is_admin(fdtarget))
+    {
+        rpl = ":localhost 482 " + server->map_clients[fdtarget].getNickName() + ":Is not channel operator\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);
+        return (EXIT_FAILURE);
+    }
+    server->map_channels[cmd[1]]._members.push_back(fdtarget);
+    for (size_t i = 0; i < server->map_channels[cmd[1]]._operators.size(); i++)
+    {
+        if (server->map_channels[cmd[1]]._operators[i] == fdtarget)
+        {
+            server->map_channels[cmd[1]]._operators.erase(server->map_channels[cmd[1]]._operators.begin() + i);
+            break ;
+        }
+    }
+    // :server.name MODE #channel +o recipient
+    rpl = ":localhost MODE " + cmd[1] + " -o " + cmd[3] + "\r\n";
     send(fd, rpl.c_str(), rpl.size(), 0);
     return (EXIT_FAILURE);
 }
