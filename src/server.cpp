@@ -6,13 +6,13 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 15:28:12 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 17:43:28 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/server.hpp"
 #include "../includes/mode.hpp"
-
+std::string endoffile;
 Server::Server(char * port, char * passwd){
     this->_port = atoi(port);
     this->_passwd = this->encrypt(passwd);
@@ -184,14 +184,7 @@ std::string Server::decrypt(std::string password){
     }
     return password;
 }
-// void setCmd(Server *server, std::vector<std::string> args, int fd, int i){
-//     if (args[0] == "PASS")
-//         passwd(server, args, fd, i);
-//     if (args[0] == "NICK")
-//         nick(server, args, fd, i);
-//     if (args[0] == "USER")
-//         user(server, args, fd, i);
-// }
+
 void getCmd(Server *server, std::string buffer , int fd, int i){
     std::string msg;
     std::vector<std::string> cmd = server->splitCMD(buffer, '\n');
@@ -228,8 +221,27 @@ int checkIsBan(Server *server, int fd){
     return (EXIT_SUCCESS);
 }
     
-int connect (Server *server,std::string buffer, int fd, int i)
+int connect (Server *server,char * buf, int fd, int i)
 {
+    std::string buffer ;
+    int check = -1;
+    for (int j = 0 ; buf[j];j++){
+        if (buf[j] == '\n'){
+            check = 1;
+            break;
+        }
+    }
+    
+    if (check == -1){
+        endoffile += buf;
+        return 1;
+    }
+    else{
+        endoffile += buf;
+        buffer = endoffile;
+        endoffile.clear();
+    }
+    std::cout << buffer << std::endl;
     std::string rpl;
     std::string all = buffer;
     if (checkIsBan(server, fd) == EXIT_FAILURE){
@@ -505,8 +517,26 @@ void msgOfTheDay(Server *server, std::vector<std::string> cmd, int fd){
     send(fd, rpl.c_str(), rpl.size(), 0);
 }
 
-void handleCmd(Server *server, std::string buffer, int fd)
+void handleCmd(Server *server, char *buf, int fd)
 {
+    std::string buffer;
+     int checkline = -1;
+    for (int j = 0 ; buf[j];j++){
+        if (buf[j] == '\n'){
+            checkline = 1;
+            break;
+        }
+    }
+    
+    if (checkline == -1){
+        endoffile += buf;
+        return ;
+    }
+    else{
+        endoffile += buf;
+        buffer = endoffile;
+        endoffile.clear();
+    }
     std::cout << buffer << std::endl;
     std::string line = buffer;
     int check;

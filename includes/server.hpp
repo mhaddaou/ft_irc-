@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 10:57:51 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/01 23:39:47 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 17:33:03 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,11 +79,11 @@ class Server{
         int _id_channel;
         std::vector<std::string> Channels;
 };
-int connect(Server *server, std::string buffer, int fd, int i);
+int connect(Server *server, char * buffer, int fd, int i);
 int nick(Server *server, std::vector<std::string> cmd, int fd, int i);
 int user(Server *server, std::vector<std::string> cmd, int fd, int i);
 int passwd(Server *server, std::vector<std::string> cmd, int fd, int i);
-void handleCmd(Server *server, std::string buffer, int fd);
+void handleCmd(Server *server, char * buffer, int fd);
 int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string line);
 void desconectedClient(Server *server, int fd, int i);
 std::string handlemsg(std::vector<std::string> msg);
