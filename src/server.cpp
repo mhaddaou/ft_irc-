@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 19:10:36 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 19:28:20 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -287,6 +287,7 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string 
     int fdTarget = -1;
     std::string rpl;
     std::string msg;
+    // return 1;
 
     if (cmd.size() == 8){
         for (Iterator it = server->map_clients.begin(); it != server->map_clients.end(); ++it)
@@ -328,7 +329,6 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string 
         }
         return 1;
     }
-    std::cout << "size -- " << cmd.size() << std::endl;
     if (cmd.size() < 3){
         
         if (cmd.size() < 2){
@@ -348,11 +348,12 @@ int setPrvMsg(Server *server, std::vector<std::string> cmd, int fd, std::string 
             msg = handlemsg(cmd);
             rpl = ":" + server->map_clients[fd].getNickName() + " PRIVMSG " + it->second.getNickName()+ " :" + msg;
             send(fdTarget, rpl.c_str(), rpl.size() , 0 );
-            return (EXIT_SUCCESS);
         }
     }
-    rpl = ":localhost 401 " + cmd[1] + " : No such nick/channel\r\n";
-    send(fd, rpl.c_str(), rpl.size(), 0);
+    if (fdTarget == -1){
+        rpl = ":localhost 401 " + cmd[1] + " : No such nick/channel\r\n";
+        send(fd, rpl.c_str(), rpl.size(), 0);    
+    }
     return (EXIT_FAILURE);
 }
 
