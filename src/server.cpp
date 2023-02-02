@@ -6,7 +6,7 @@
 /*   By: mhaddaou <mhaddaou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/12 11:10:21 by mhaddaou          #+#    #+#             */
-/*   Updated: 2023/02/02 13:46:22 by mhaddaou         ###   ########.fr       */
+/*   Updated: 2023/02/02 15:28:12 by mhaddaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ int Server::_socket(){
     this->serverfd = socket(AF_INET, SOCK_STREAM, 0);
     int reuse = 1;
     setsockopt(this->serverfd, SOL_SOCKET, SO_REUSEPORT, (const void *)&reuse, sizeof(int));
+    setsockopt(this->serverfd, SOL_SOCKET, SO_REUSESHAREUID,(const void *)&reuse, sizeof(int));
     if (this->serverfd < 0) {
         std::cerr << "Error creating socket" << std::endl;
         return (EXIT_FAILURE);
